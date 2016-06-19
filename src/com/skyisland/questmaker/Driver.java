@@ -139,16 +139,19 @@ public class Driver {
 		if (projectFile == null || !projectFile.exists())
 			return;
 		
-		if (openProject != null) {
-			openProject.close();
-		}
+		if (openProject != null)
+		if (!openProject.close())
+			return;
 		
 		openProject = Project.load(projectFile);
 	}
 	
-	public void close() {
+	public boolean close() {
 		if (openProject != null)
-			openProject.close();
+		if (!openProject.close())
+			return false;
+		
+		return true;
 	}
 
 }

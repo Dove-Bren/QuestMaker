@@ -28,7 +28,8 @@ public class ExitAction extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		Driver.driver.close();
+		if (!Driver.driver.close())
+			return;
 		
 		System.exit(0);
 	}
