@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URL;
 import java.util.logging.Logger;
@@ -113,7 +115,8 @@ public class Driver {
 	public static void main(String[] args) {
 		QuestManagerPlugin.logger = Logger.getLogger("QuestMaker");
 		//QuestManagerPlugin.registerConfigurationClasses();
-		registerConfigurationClasses(); //do our own, a little custom
+		//registerConfigurationClasses(); //do our own, a little custom
+		//CraftItemFactory.instance();
 		//QuestManagerPlugin.questManagerPlugin.
 		
 		
@@ -224,7 +227,14 @@ public class Driver {
 		
 		
 		//mainWindow.setSize(640, 480);
-		mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		mainWindow.addWindowListener(new WindowAdapter() {
+			
+			@Override
+			public void windowClosing(WindowEvent e) {
+				ExitAction.instance().actionPerformed(null);
+			}
+		});
 		mainWindow.pack();
 		mainWindow.setVisible(true);
 	}

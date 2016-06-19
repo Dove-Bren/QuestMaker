@@ -12,6 +12,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EntityEquipment;
 
+import com.avaje.ebean.enhance.asm.commons.Method;
 import com.skyisland.questmaker.configutils.FakeEntity;
 import com.skyisland.questmanager.QuestManagerPlugin;
 import com.skyisland.questmanager.configuration.EquipmentConfiguration;
@@ -161,6 +162,10 @@ public class TeleportNPC extends SimpleStaticBioptionNPC {
 			npc.chat.setSourceLabel(label);			
 			npc.altMessage.setSourceLabel(label);
 		}
+		
+//		NEED TO DECIDE TO TAKE OVER MESSAGES SUBDIRECTORY OR NOT. IT'S JUST ONE... RIGHT? WHY NOT?
+//		OR SHOULD I STOP BRINGING OVER CRAP LIKE NPC AND MESSAGE? AFTER ALL, THEY DON'T EVEN PROPERLY
+//		IMPLEMENT THE SERIALIZE Method. tHAT'S AT LEAST THE CASE FOR NPCS
 		
 		return npc;
 	}

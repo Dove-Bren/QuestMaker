@@ -31,7 +31,7 @@ public class ExitAction extends AbstractAction {
 		if (!Driver.driver.close())
 			return;
 		
-		System.exit(0);
+		Driver.driver.getMainWindow().dispose();
 	}
 
 }
