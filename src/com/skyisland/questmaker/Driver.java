@@ -10,6 +10,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
@@ -27,6 +28,8 @@ import com.skyisland.questmaker.actions.OpenProjectAction;
 import com.skyisland.questmaker.actions.SaveProjectAction;
 import com.skyisland.questmaker.actions.SaveProjectAsAction;
 import com.skyisland.questmaker.configutils.FakeLocationState;
+import com.skyisland.questmaker.explorer.ExplorerItem;
+import com.skyisland.questmaker.explorer.ProjectExplorer;
 import com.skyisland.questmaker.npc.BankNPC;
 import com.skyisland.questmaker.npc.DummyNPC;
 import com.skyisland.questmaker.npc.ForgeNPC;
@@ -95,11 +98,13 @@ public class Driver {
 	
 	private JFrame mainWindow;
 	
-	private JScrollPane fileViewer;
+	private JPanel fileViewer;
 	
 	private JPanel editor;
 	
 	private JToolBar toolBar;
+	
+	private ProjectExplorer explorer;
 	
 	
 	
@@ -213,9 +218,13 @@ public class Driver {
 		toolBar.add(button);
 		mainWindow.getContentPane().add(toolBar, BorderLayout.NORTH);
 		
-		fileViewer = new JScrollPane(new JPanel());
+		//fileViewer = new JScrollPane(new JPanel());
+		fileViewer = new JPanel();
+		fileViewer.setLayout(new BorderLayout());
 		fileViewer.setPreferredSize(new Dimension(200, 400));
 		mainWindow.getContentPane().add(fileViewer, BorderLayout.LINE_START);
+		explorer = new ProjectExplorer(fileViewer);
+		
 		
 		editor = new JPanel();
 		editor.setPreferredSize(new Dimension(400,400));
@@ -273,6 +282,10 @@ public class Driver {
 			return;
 		
 		openProject = Project.load(projectFile);
+	}
+	
+	public ProjectExplorer getExplorer() {
+		return explorer;
 	}
 	
 	public void saveProject(File saveFile) {
