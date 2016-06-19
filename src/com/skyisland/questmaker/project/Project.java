@@ -9,8 +9,13 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import com.skyisland.questmaker.Driver;
 import com.skyisland.questmaker.configutils.PluginConfigurationWriter;
+import com.skyisland.questmaker.quest.QuestTemplate;
+import com.skyisland.questmanager.QuestManagerPlugin;
 import com.skyisland.questmanager.configuration.AlterablePluginConfiguration;
 
 /**
@@ -57,7 +62,7 @@ public class Project {
 	//private List<ResourceRecord> skillsConfigs;
 	
 	public Project() {
-		dirty = true;
+		dirty = false;
 		quests = new LinkedList<>();
 		spells = new LinkedList<>();
 		regions = new LinkedList<>();
@@ -95,21 +100,21 @@ public class Project {
 		try {
 			for (ResourceRecord record : quests) {
 				if (record.dirty) {
-					record.resource.save(new File(saveFile, config.getQuestPath()));
+					record.resource.save(new File(saveFile.getParentFile(), config.getQuestPath()));
 					record.dirty = false;
 				}
 			}
 
 			for (ResourceRecord record : spells) {
 				if (record.dirty) {
-					record.resource.save(new File(saveFile, config.getSpellPath()));
+					record.resource.save(new File(saveFile.getParentFile(), config.getSpellPath()));
 					record.dirty = false;
 				}
 			}
 
 			for (ResourceRecord record : regions) {
 				if (record.dirty) {
-					record.resource.save(new File(saveFile, config.getRegionPath()));
+					record.resource.save(new File(saveFile.getParentFile(), config.getRegionPath()));
 					record.dirty = false;
 				}
 			}
@@ -117,6 +122,9 @@ public class Project {
 			PluginConfigurationWriter.saveConfig(config, saveFile);
 		} catch (IOException e) {
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(Driver.driver.getMainWindow(),
+					"Encountered an IO Exception while saving! Check the device is available, and try again",
+					"Failed To Save", JOptionPane.PLAIN_MESSAGE);
 			return false;
 		}
 		
@@ -144,7 +152,7 @@ public class Project {
 				return false;
 			
 			if (rep == JOptionPane.YES_OPTION) {
-				save();
+				return save();
 			}
 		}
 		return true;
@@ -159,12 +167,91 @@ public class Project {
 		
 		project.saveFile = loadFile;
 		
+		project.loadQuests();
+		
 		
 		return project;
 	}
 	
+	private void loadQuests() {
+		if (saveFile == null) {
+			System.err.println("Cannot load quests with no base config location");
+			return;
+		}
+		if (config == null) {
+			System.err.println("Cannot load quests without a base config");
+			return;
+		}
+		
+		File dir = new File(saveFile.getParentFile(), config.getQuestPath());
+		System.out.print("Loading Quests from " + dir.getAbsolutePath() + "... ");
+		if (!dir.exists())
+			return;
+		
+		if (!dir.isDirectory()) {
+			System.out.println("");
+			JOptionPane.showMessageDialog(Driver.driver.getMainWindow(),
+					"Quest directory points to an invalid file; expected a directory, but got a file!",
+					"Invalid File",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		if (dir.listFiles().length == 0) {
+			System.out.println("no files!");
+			return;
+		}
+		
+		int count = 0;
+		
+		//lookup and load templates for each quest name given
+		for (File templateFile : dir.listFiles()) {
+			count += loadTemplateFile(templateFile);			
+		}
+		
+		System.out.println("Loaded " + count + " quests");
+	}
 	
+	private int loadTemplateFile(File templateFile) {
+		if (templateFile == null || !templateFile.exists()) {
+			return 0;
+		}
+		
+		if (templateFile.isDirectory()) {
+			int count = 0;
+			
+			for (File f : templateFile.listFiles()) {
+				count += loadTemplateFile(f);
+			}
+			
+			return count;
+		}
+		
+		if (!templateFile.getName().endsWith(".yml") && 
+				!templateFile.getName().endsWith(".yaml")) {
+			return 0;
+		}
+		
+		//found the file, let's load it up!
+		YamlConfiguration questConfig = new YamlConfiguration();
+		try {
+			questConfig.load(templateFile);
+		} catch (IOException | InvalidConfigurationException e) {
+			e.printStackTrace();
+			QuestManagerPlugin.logger.warning(
+					"Unable to load quest from file: " + templateFile.getAbsolutePath());
+			return 0;
+		}
+		
+		QuestTemplate questTemplate = new QuestTemplate(questConfig);
+		quests.add(new ResourceRecord(questTemplate, false));
+		
+		return 1;
+	}
 	
+	public void addQuest(QuestTemplate quest) {
+		quests.add(new ResourceRecord(quest));
+	}
 	
 	
 }
