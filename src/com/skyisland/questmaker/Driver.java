@@ -6,7 +6,9 @@ import java.awt.Dimension;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
+import java.io.File;
 import java.net.URL;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -18,6 +20,7 @@ import javax.swing.JToolBar;
 
 import com.skyisland.questmaker.actions.ExitAction;
 import com.skyisland.questmaker.actions.OpenProjectAction;
+import com.skyisland.questmanager.QuestManagerPlugin;
 
 /**
  * Main driver class. Starts the program, pops up the window, and starts the ball rolling.
@@ -26,6 +29,8 @@ import com.skyisland.questmaker.actions.OpenProjectAction;
  */
 public class Driver {
 
+	//Gui members
+	
 	public static Driver driver;
 	
 	public static Menus menus;
@@ -38,11 +43,31 @@ public class Driver {
 	
 	private JToolBar toolBar;
 	
+	
+	
+	
+	//Project members
+	
+	private Project openProject;
+	
+	
+	
+	
+	
 	public static void main(String[] args) {
+		QuestManagerPlugin.logger = Logger.getLogger("QuestMaker");
+		//QuestManagerPlugin.questManagerPlugin.
+		
+		
 		driver = new Driver();
 	}
 	
 	public Driver() {
+		initGui();
+		openProject = null;
+	}
+	
+	private void initGui() {
 		mainWindow = new JFrame("QuestMaker");
 		
 		toolBar = new JToolBar("toolbar");
@@ -108,6 +133,22 @@ public class Driver {
 	
 	public JFrame getMainWindow() {
 		return this.mainWindow;
+	}
+	
+	public void openProject(File projectFile) {
+		if (projectFile == null || !projectFile.exists())
+			return;
+		
+		if (openProject != null) {
+			openProject.close();
+		}
+		
+		openProject = Project.load(projectFile);
+	}
+	
+	public void close() {
+		if (openProject != null)
+			openProject.close();
 	}
 
 }

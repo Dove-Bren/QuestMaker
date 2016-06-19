@@ -42,6 +42,7 @@ public class OpenProjectAction extends AbstractAction {
 		File openFile = dia.getSelectedFile();
 		System.out.println("got file " + openFile.getName());
 		
+		Driver.driver.openProject(openFile);
 	}
 
 }
