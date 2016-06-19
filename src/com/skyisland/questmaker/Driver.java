@@ -20,6 +20,9 @@ import javax.swing.JToolBar;
 
 import com.skyisland.questmaker.actions.ExitAction;
 import com.skyisland.questmaker.actions.OpenProjectAction;
+import com.skyisland.questmaker.actions.SaveProjectAction;
+import com.skyisland.questmaker.actions.SaveProjectAsAction;
+import com.skyisland.questmaker.project.Project;
 import com.skyisland.questmanager.QuestManagerPlugin;
 
 /**
@@ -125,6 +128,12 @@ public class Driver {
 		MenuItem item = new MenuItem("Exit");
 		item.addActionListener(ExitAction.instance());
 		menu.add(item);
+		item = new MenuItem("Save Project");
+		item.addActionListener(SaveProjectAction.instance());
+		menu.add(item);
+		item = new MenuItem("Save Project As");
+		item.addActionListener(SaveProjectAsAction.instance());
+		menu.add(item);
 		
 		menus.addMenu(menu);
 		
@@ -144,6 +153,20 @@ public class Driver {
 			return;
 		
 		openProject = Project.load(projectFile);
+	}
+	
+	public void saveProject(File saveFile) {
+		if (saveFile == null || openProject == null)
+			return;
+		
+		openProject.save(saveFile);
+	}
+	
+	public void saveProject() {
+		if (openProject == null)
+			return;
+		
+		openProject.save();
 	}
 	
 	public boolean close() {
