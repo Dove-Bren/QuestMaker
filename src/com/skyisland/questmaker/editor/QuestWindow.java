@@ -34,7 +34,7 @@ public class QuestWindow implements EditorWindow {
 	
 	public QuestWindow(QuestTemplate template) {
 		this.template = template;
-		gui = new JPanel(new SpringLayout());
+		gui = new JPanel();
 		setupGui();
 	}
 

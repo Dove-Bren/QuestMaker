@@ -22,6 +22,7 @@ import javax.swing.JToolBar;
 
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
+import com.skyisland.questmaker.actions.CreateProjectAction;
 import com.skyisland.questmaker.actions.CreateQuestAction;
 import com.skyisland.questmaker.actions.ExitAction;
 import com.skyisland.questmaker.actions.OpenProjectAction;
@@ -259,8 +260,8 @@ public class Driver {
 		menus = new Menus(bar);
 		
 		Menu menu = new Menu("Project");
-		MenuItem item = new MenuItem("Exit");
-		item.addActionListener(ExitAction.instance());
+		MenuItem item = new MenuItem("Create Project");
+		item.addActionListener(CreateProjectAction.instance());
 		menu.add(item);
 		item = new MenuItem("Save Project");
 		item.addActionListener(SaveProjectAction.instance());
@@ -271,6 +272,11 @@ public class Driver {
 		menu.addSeparator();
 		item = new MenuItem("Create Quest");
 		item.addActionListener(CreateQuestAction.instance());
+		menu.add(item);
+		
+		menu.addSeparator();
+		item = new MenuItem("Exit");
+		item.addActionListener(ExitAction.instance());
 		menu.add(item);
 		
 		menus.addMenu(menu);
@@ -287,10 +293,23 @@ public class Driver {
 			return;
 		
 		if (openProject != null)
-		if (!openProject.close())
+		if (!editor.closeAllWindows() || !openProject.close())
 			return;
 		
+		explorer.clear();
 		openProject = Project.load(projectFile);
+	}
+	
+	public void openProject(Project project) {
+		if (project == null)
+			return;
+		
+		if (openProject != null)
+		if (!editor.closeAllWindows() || !openProject.close())
+			return;
+		
+		explorer.clear();
+		openProject = project;
 	}
 	
 	public ProjectExplorer getExplorer() {
