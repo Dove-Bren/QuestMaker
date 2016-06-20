@@ -129,7 +129,7 @@ public class Project {
 		}
 		
 		
-		dirty = false;
+		dirty(false);
 		return true;
 	}
 	
@@ -245,12 +245,29 @@ public class Project {
 		
 		QuestTemplate questTemplate = new QuestTemplate(questConfig);
 		quests.add(new ResourceRecord(questTemplate, false));
+		Driver.driver.getExplorer().addItem(questTemplate);
 		
 		return 1;
 	}
 	
 	public void addQuest(QuestTemplate quest) {
+		dirty();
 		quests.add(new ResourceRecord(quest));
+		Driver.driver.getExplorer().addItem(quest);
+	}
+	
+	private void dirty() {
+		dirty(true);
+	}
+	
+	private void dirty(boolean isDirty) {
+		if (isDirty == dirty)
+			return;
+		
+		if (isDirty)
+			Driver.driver.getMainWindow().setTitle(Driver.MAIN_TITLE + "*"); //newly dirty 
+		else
+			Driver.driver.getMainWindow().setTitle(Driver.MAIN_TITLE);
 	}
 	
 	

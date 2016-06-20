@@ -10,25 +10,25 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URL;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
+import com.skyisland.questmaker.actions.CreateQuestAction;
 import com.skyisland.questmaker.actions.ExitAction;
 import com.skyisland.questmaker.actions.OpenProjectAction;
 import com.skyisland.questmaker.actions.SaveProjectAction;
 import com.skyisland.questmaker.actions.SaveProjectAsAction;
 import com.skyisland.questmaker.configutils.FakeLocationState;
-import com.skyisland.questmaker.explorer.ExplorerItem;
+import com.skyisland.questmaker.editor.Editor;
 import com.skyisland.questmaker.explorer.ProjectExplorer;
 import com.skyisland.questmaker.npc.BankNPC;
 import com.skyisland.questmaker.npc.DummyNPC;
@@ -89,6 +89,8 @@ import com.skyisland.questmanager.ui.menu.message.TreeMessage;
  *
  */
 public class Driver {
+	
+	public static final String MAIN_TITLE = "QuestMaker";
 
 	//Gui members
 	
@@ -100,11 +102,13 @@ public class Driver {
 	
 	private JPanel fileViewer;
 	
-	private JPanel editor;
+	private JDesktopPane editorPane;
 	
 	private JToolBar toolBar;
 	
 	private ProjectExplorer explorer;
+	
+	private Editor editor;
 	
 	
 	
@@ -189,7 +193,7 @@ public class Driver {
 	}
 	
 	private void initGui() {
-		mainWindow = new JFrame("QuestMaker");
+		mainWindow = new JFrame(MAIN_TITLE);
 		
 		toolBar = new JToolBar("toolbar");
 		toolBar.setFloatable(false);
@@ -226,11 +230,12 @@ public class Driver {
 		explorer = new ProjectExplorer(fileViewer);
 		
 		
-		editor = new JPanel();
-		editor.setPreferredSize(new Dimension(400,400));
-		editor.setBackground(Color.WHITE);
-		editor.setBorder(BorderFactory.createLoweredSoftBevelBorder());
-		mainWindow.getContentPane().add(editor, BorderLayout.CENTER);
+		editorPane = new JDesktopPane();
+		editorPane.setPreferredSize(new Dimension(400,400));
+		editorPane.setBackground(Color.WHITE);
+		editorPane.setBorder(BorderFactory.createLoweredSoftBevelBorder());
+		mainWindow.getContentPane().add(editorPane, BorderLayout.CENTER);
+		this.editor = new Editor(editorPane);
 		
 		createMenus(mainWindow);
 		
@@ -263,6 +268,10 @@ public class Driver {
 		item = new MenuItem("Save Project As");
 		item.addActionListener(SaveProjectAsAction.instance());
 		menu.add(item);
+		menu.addSeparator();
+		item = new MenuItem("Create Quest");
+		item.addActionListener(CreateQuestAction.instance());
+		menu.add(item);
 		
 		menus.addMenu(menu);
 		
@@ -288,6 +297,10 @@ public class Driver {
 		return explorer;
 	}
 	
+	public Editor getEditor() {
+		return editor;
+	}
+	
 	public void saveProject(File saveFile) {
 		if (saveFile == null || openProject == null)
 			return;
@@ -308,6 +321,10 @@ public class Driver {
 			return false;
 		
 		return true;
+	}
+	
+	public Project getOpenProject() {
+		return this.openProject;
 	}
 
 }

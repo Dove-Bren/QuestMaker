@@ -1,5 +1,7 @@
 package com.skyisland.questmaker.explorer;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,6 +31,18 @@ public class ProjectExplorer {
 		this.data = new DefaultListModel<>();
 		this.list = new JList<>(data);
 		this.list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
+		//from http://stackoverflow.com/questions/4344682/double-click-event-on-jlist-element
+		list.addMouseListener(new MouseAdapter() {
+		    public void mouseClicked(MouseEvent evt) {
+		        JList list = (JList)evt.getSource();
+		        if (evt.getClickCount() == 2) {
+
+		            // Double-click detected
+		            select(list.getSelectedIndex());
+		        }
+		    }
+		});
 		
 		this.panel.add(new JScrollPane(list));
 		
@@ -61,5 +75,14 @@ public class ProjectExplorer {
 	public void clear() {
 		data.clear();
 		tree.clear();
+	}
+	
+	private void select(int index) {
+		if (index == -1) {
+			//no selection
+			return;
+		}
+		
+		tree.get(index).open();
 	}
 }
