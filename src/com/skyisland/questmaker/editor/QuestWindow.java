@@ -2,12 +2,13 @@ package com.skyisland.questmaker.editor;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SpringLayout;
 
 import com.skyisland.questmaker.quest.QuestTemplate;
 
@@ -15,7 +16,7 @@ public class QuestWindow implements EditorWindow {
 
 	private enum Fields {
 		NAME("Name", new JTextField()),
-		DESCRIPTION("Description", new JTextArea("Short Description Here", 30, 1));
+		DESCRIPTION("Description", new JTextArea("Short Description Here", 30, 1), new Dimension(0, 10));
 		
 		
 		private String label;
@@ -26,6 +27,11 @@ public class QuestWindow implements EditorWindow {
 			this.label = label;
 			this.component = component;
 		}
+		
+		private Fields(String label, Component component, Dimension preferredSize) {
+			this(label, component);
+			component.setPreferredSize(preferredSize);
+		}
 	}
 	
 	private QuestTemplate template;
@@ -35,6 +41,7 @@ public class QuestWindow implements EditorWindow {
 	public QuestWindow(QuestTemplate template) {
 		this.template = template;
 		gui = new JPanel();
+		gui.setLayout(new BoxLayout(gui, BoxLayout.PAGE_AXIS));
 		setupGui();
 	}
 
@@ -54,13 +61,15 @@ public class QuestWindow implements EditorWindow {
 	}
 	
 	private void setupGui() {
+		System.out.println("Creating");
 		gui.setBackground(Color.DARK_GRAY);
+		gui.setPreferredSize(new Dimension(250, 400));
 		JLabel cache;
 		for (Fields field : Fields.values()) {
-			gui.add(field.component);
 			cache = new JLabel(field.label, JLabel.TRAILING);
 			cache.setLabelFor(field.component);
 			gui.add(cache);
+			gui.add(field.component);
 		}
 	}
 	
