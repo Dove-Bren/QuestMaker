@@ -268,6 +268,8 @@ public class Project {
 			Driver.driver.getMainWindow().setTitle(Driver.MAIN_TITLE + "*"); //newly dirty 
 		else
 			Driver.driver.getMainWindow().setTitle(Driver.MAIN_TITLE);
+		
+		dirty = isDirty;
 	}
 	
 	
