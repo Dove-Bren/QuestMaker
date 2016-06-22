@@ -6,12 +6,75 @@ import java.awt.MenuItem;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.Action;
+
+import com.skyisland.questmaker.actions.CreateProjectAction;
+import com.skyisland.questmaker.actions.CreateQuestAction;
+import com.skyisland.questmaker.actions.ExitAction;
+import com.skyisland.questmaker.actions.OpenProjectAction;
+import com.skyisland.questmaker.actions.SaveProjectAction;
+import com.skyisland.questmaker.actions.SaveProjectAsAction;
+
 /**
  * Registers and tracks menus and menuitems for the program for easier getting and modifying.
  * @author Skyler
  *
  */
 public class Menus {
+	
+	private static enum DEFAULT_MENUS {
+		NEW_PROJECT(DEFAULT_CATS.FILE, CreateProjectAction.instance(), "New Project"),
+		OPEN_PROJECT(DEFAULT_CATS.FILE, OpenProjectAction.instance(), "Open Project"),
+		LINE1(DEFAULT_CATS.FILE),
+		SAVE_PROJECT(DEFAULT_CATS.FILE, SaveProjectAction.instance(), "Save"),
+		SAVE_AS_PROJECT(DEFAULT_CATS.FILE, SaveProjectAsAction.instance(), "Save As"),
+		LINE2(DEFAULT_CATS.FILE),
+		EXIT(DEFAULT_CATS.FILE, ExitAction.instance(), "Exit"),
+		//EDIT
+		
+		//Project
+		
+		//Quest
+		NEW_QUEST(DEFAULT_CATS.QUEST, CreateQuestAction.instance(), "New Quest")
+		//NPC
+		
+		;
+		
+		
+		protected static enum DEFAULT_CATS {
+			FILE("File"),
+			EDIT("Edit"),
+			PROJECT("Project"),
+			QUEST("Quest"),
+			NPC("NPC"),
+			HELP("Help");
+			
+			private String name;
+			
+			private DEFAULT_CATS(String name) {
+				this.name = name;
+			}
+		}
+		
+		private DEFAULT_CATS menu;
+		
+		private Action action;
+		
+		private String title;
+		
+		private DEFAULT_MENUS(DEFAULT_CATS menu, Action action, String title) {
+			this.menu = menu;
+			this.action = action;
+			this.title = title;
+		}
+		
+		/**
+		 * Indicates a line seperator should be used
+		 */
+		private DEFAULT_MENUS(DEFAULT_CATS menu) {
+			this.menu = menu;
+		}
+	}
 	
 	private static int key_base = 0;
 	
@@ -25,6 +88,8 @@ public class Menus {
 		this.menuBar = menuBar;
 		this.menus = new HashMap<>();
 		this.items = new HashMap<>();
+		
+		createDefaultMenus();
 	}
 	
 	/**
@@ -83,5 +148,27 @@ public class Menus {
 	
 	public MenuItem getItem(int key) {
 		return items.get(key);
+	}
+	
+	private void createDefaultMenus() {
+		Menu menu;
+		MenuItem mitem;
+		for (DEFAULT_MENUS.DEFAULT_CATS category : DEFAULT_MENUS.DEFAULT_CATS.values()) {
+			menu = new Menu(category.name);
+			for (DEFAULT_MENUS item : DEFAULT_MENUS.values()) {
+				if (item.menu == category) {
+					if (item.title == null) {
+						menu.addSeparator();
+						continue;
+					}
+					
+					mitem = new MenuItem(item.title);
+					mitem.addActionListener(item.action);
+					menu.add(mitem);
+				}
+			}
+			
+			menuBar.add(menu);
+		}
 	}
 }

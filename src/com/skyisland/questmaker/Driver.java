@@ -92,6 +92,8 @@ import com.skyisland.questmanager.ui.menu.message.TreeMessage;
 public class Driver {
 	
 	public static final String MAIN_TITLE = "QuestMaker";
+	
+	private static final Dimension DEFAULT_SIZE = new Dimension(800, 640);
 
 	//Gui members
 	
@@ -107,16 +109,16 @@ public class Driver {
 	
 	private JToolBar toolBar;
 	
-	private ProjectExplorer explorer;
-	
-	private Editor editor;
-	
 	
 	
 	
 	//Project members
 	
 	private Project openProject;
+	
+	private ProjectExplorer explorer;
+	
+	private Editor editor;
 	
 	
 	
@@ -241,7 +243,7 @@ public class Driver {
 		createMenus(mainWindow);
 		
 		
-		//mainWindow.setSize(640, 480);
+		mainWindow.setPreferredSize(DEFAULT_SIZE);
 		mainWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		mainWindow.addWindowListener(new WindowAdapter() {
 			
@@ -256,31 +258,7 @@ public class Driver {
 	
 	private void createMenus(JFrame frame) {
 		MenuBar bar = new MenuBar();
-		
 		menus = new Menus(bar);
-		
-		Menu menu = new Menu("Project");
-		MenuItem item = new MenuItem("Create Project");
-		item.addActionListener(CreateProjectAction.instance());
-		menu.add(item);
-		item = new MenuItem("Save Project");
-		item.addActionListener(SaveProjectAction.instance());
-		menu.add(item);
-		item = new MenuItem("Save Project As");
-		item.addActionListener(SaveProjectAsAction.instance());
-		menu.add(item);
-		menu.addSeparator();
-		item = new MenuItem("Create Quest");
-		item.addActionListener(CreateQuestAction.instance());
-		menu.add(item);
-		
-		menu.addSeparator();
-		item = new MenuItem("Exit");
-		item.addActionListener(ExitAction.instance());
-		menu.add(item);
-		
-		menus.addMenu(menu);
-		
 		frame.setMenuBar(bar);
 	}
 	
