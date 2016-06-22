@@ -29,7 +29,6 @@ public class CreateProjectAction extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
 		Driver.driver.openProject(new Project());
 	}
 

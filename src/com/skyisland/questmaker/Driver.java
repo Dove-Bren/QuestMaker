@@ -3,9 +3,7 @@ package com.skyisland.questmaker;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Menu;
 import java.awt.MenuBar;
-import java.awt.MenuItem;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -22,12 +20,8 @@ import javax.swing.JToolBar;
 
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
-import com.skyisland.questmaker.actions.CreateProjectAction;
-import com.skyisland.questmaker.actions.CreateQuestAction;
 import com.skyisland.questmaker.actions.ExitAction;
 import com.skyisland.questmaker.actions.OpenProjectAction;
-import com.skyisland.questmaker.actions.SaveProjectAction;
-import com.skyisland.questmaker.actions.SaveProjectAsAction;
 import com.skyisland.questmaker.configutils.FakeLocationState;
 import com.skyisland.questmaker.editor.Editor;
 import com.skyisland.questmaker.explorer.ProjectExplorer;

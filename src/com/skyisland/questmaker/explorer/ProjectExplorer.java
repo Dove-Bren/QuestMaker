@@ -4,7 +4,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
@@ -46,7 +45,8 @@ public class ProjectExplorer {
 		//from http://stackoverflow.com/questions/4344682/double-click-event-on-jlist-element
 		list.addMouseListener(new MouseAdapter() {
 		    public void mouseClicked(MouseEvent evt) {
-		        JList list = (JList)evt.getSource();
+		        @SuppressWarnings("unchecked")
+				JList<String> list = (JList<String>)evt.getSource();
 		        if (evt.getClickCount() == 2) {
 
 		            // Double-click detected

@@ -68,6 +68,7 @@ public class Project {
 		quests = new LinkedList<>();
 		spells = new LinkedList<>();
 		regions = new LinkedList<>();
+		dirty();
 	}
 	
 	/**
@@ -165,6 +166,7 @@ public class Project {
 			return null;
 		
 		Project project = new Project();
+		project.dirty(false);
 		project.config = new AlterablePluginConfiguration(loadFile);
 		
 		project.saveFile = loadFile;

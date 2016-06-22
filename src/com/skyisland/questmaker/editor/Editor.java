@@ -1,7 +1,5 @@
 package com.skyisland.questmaker.editor;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +20,12 @@ public class Editor {
 	public void openWindow(EditorWindow window) {
 		if (window == null)
 			return;
+		
+		if (!openWindows.isEmpty())
+		for (EditorWindow open : openWindows.keySet()) {
+			if (open.getWindowTitle().equals(window.getWindowTitle()))
+				return;
+		}
 		
 		JInternalFrame frame = new JInternalFrame(window.getWindowTitle());
 		frame.setVisible(true);
