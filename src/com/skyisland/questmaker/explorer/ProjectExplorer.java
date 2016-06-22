@@ -85,9 +85,7 @@ public class ProjectExplorer {
 		int pos;
 		switch (section) {
 		case QUEST:
-			System.out.println("index: " + position);
 			pos = Math.min(questSection.size(), position);
-			System.out.println("capped?: " + pos);
 			questSection.add(pos, item);
 			data.add(pos + 1, item.getTitle());
 			break;

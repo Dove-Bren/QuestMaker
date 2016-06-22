@@ -61,7 +61,6 @@ public class QuestWindow implements EditorWindow {
 	}
 	
 	private void setupGui() {
-		System.out.println("Creating");
 		gui.setBackground(Color.DARK_GRAY);
 		gui.setPreferredSize(new Dimension(250, 400));
 		JLabel cache;

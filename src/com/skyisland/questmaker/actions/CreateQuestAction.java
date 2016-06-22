@@ -39,6 +39,12 @@ public class CreateQuestAction extends AbstractAction {
 		if (name == null)
 			return;
 		
+		if (proj.hasQuest(name)) {
+			JOptionPane.showMessageDialog(Driver.driver.getMainWindow(), "A quest with that name already exists",
+					"Couldn't make quest", JOptionPane.PLAIN_MESSAGE);
+			return;
+		}
+		
 		QuestTemplate template = new QuestTemplate(name);
 		proj.addQuest(template);
 		Driver.driver.getEditor().openWindow(new QuestWindow(template));

@@ -19,6 +19,7 @@ import com.skyisland.questmaker.explorer.ProjectExplorer;
 import com.skyisland.questmaker.quest.QuestTemplate;
 import com.skyisland.questmanager.QuestManagerPlugin;
 import com.skyisland.questmanager.configuration.AlterablePluginConfiguration;
+import com.skyisland.questmanager.configuration.QuestConfigurationField;
 
 /**
  * On open project being edited. Encapsulates all of the information about the open project.
@@ -264,7 +265,6 @@ public class Project {
 		quests.add(record);
 		sort();
 		int index = quests.indexOf(record);
-		System.out.println("index: " + index);
 		Driver.driver.getExplorer().addItem(quest, ProjectExplorer.Section.QUEST, index);
 	}
 	
@@ -290,5 +290,12 @@ public class Project {
 		});
 	}
 	
-	
+	public boolean hasQuest(String name) {
+		for (ResourceRecord<QuestTemplate> quest : quests) {
+			if (quest.resource.getValue(QuestConfigurationField.NAME).equals(name))
+				return true;
+		}
+		
+		return false;
+	}
 }
