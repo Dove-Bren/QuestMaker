@@ -2,6 +2,7 @@ package com.skyisland.questmaker.project;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.skyisland.questmaker.Driver;
 import com.skyisland.questmaker.configutils.PluginConfigurationWriter;
+import com.skyisland.questmaker.explorer.ProjectExplorer;
 import com.skyisland.questmaker.quest.QuestTemplate;
 import com.skyisland.questmanager.QuestManagerPlugin;
 import com.skyisland.questmanager.configuration.AlterablePluginConfiguration;
@@ -26,17 +28,17 @@ import com.skyisland.questmanager.configuration.AlterablePluginConfiguration;
  */
 public class Project {
 	
-	private static class ResourceRecord {
+	private static class ResourceRecord<E extends ProjectResource> {
 		
-		private ProjectResource resource;
+		private E resource;
 		
 		private boolean dirty;
 		
-		public ResourceRecord(ProjectResource resource) {
+		public ResourceRecord(E resource) {
 			this(resource, true);
 		}
 		
-		public ResourceRecord(ProjectResource resource, boolean dirty) {
+		public ResourceRecord(E resource, boolean dirty) {
 			this.resource = resource;
 			this.dirty = dirty;
 		}
@@ -52,7 +54,7 @@ public class Project {
 	
 	private File saveFile;
 	
-	private List<ResourceRecord> quests;
+	private List<ResourceRecord<QuestTemplate>> quests;
 	
 	private List<ResourceRecord> spells;
 	
@@ -98,7 +100,7 @@ public class Project {
 	public boolean save(File saveFile) {
 		
 		try {
-			for (ResourceRecord record : quests) {
+			for (ResourceRecord<QuestTemplate> record : quests) {
 				if (record.dirty) {
 					record.resource.save(new File(saveFile.getParentFile(), config.getQuestPath()));
 					record.dirty = false;
@@ -209,6 +211,11 @@ public class Project {
 			count += loadTemplateFile(templateFile);			
 		}
 		
+		
+		for (ResourceRecord<QuestTemplate> rec : quests) {
+			Driver.driver.getExplorer().addItem(rec.resource, ProjectExplorer.Section.QUEST);
+		}
+		
 		System.out.println("Loaded " + count + " quests");
 	}
 	
@@ -244,16 +251,19 @@ public class Project {
 		}
 		
 		QuestTemplate questTemplate = new QuestTemplate(questConfig);
-		quests.add(new ResourceRecord(questTemplate, false));
-		Driver.driver.getExplorer().addItem(questTemplate);
+		quests.add(new ResourceRecord<QuestTemplate>(questTemplate, false));
 		
 		return 1;
 	}
 	
 	public void addQuest(QuestTemplate quest) {
 		dirty();
-		quests.add(new ResourceRecord(quest));
-		Driver.driver.getExplorer().addItem(quest);
+		ResourceRecord<QuestTemplate> record = new ResourceRecord<>(quest);
+		quests.add(record);
+		sort();
+		int index = quests.indexOf(record);
+		System.out.println("index: " + index);
+		Driver.driver.getExplorer().addItem(quest, ProjectExplorer.Section.QUEST, index);
 	}
 	
 	private void dirty() {
@@ -270,6 +280,12 @@ public class Project {
 			Driver.driver.getMainWindow().setTitle(Driver.MAIN_TITLE);
 		
 		dirty = isDirty;
+	}
+	
+	private void sort() {
+		Collections.sort(quests, (ResourceRecord<QuestTemplate> q1, ResourceRecord<QuestTemplate> q2) -> {
+			return (q1.resource.getTitle().compareTo(q2.resource.getTitle()));
+		});
 	}
 	
 	
