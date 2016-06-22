@@ -15,10 +15,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.skyisland.questmaker.Driver;
 import com.skyisland.questmaker.configutils.PluginConfigurationWriter;
+import com.skyisland.questmaker.editor.ProjectWindow;
 import com.skyisland.questmaker.explorer.ProjectExplorer;
 import com.skyisland.questmaker.quest.QuestTemplate;
 import com.skyisland.questmanager.QuestManagerPlugin;
 import com.skyisland.questmanager.configuration.AlterablePluginConfiguration;
+import com.skyisland.questmanager.configuration.PluginConfiguration;
 import com.skyisland.questmanager.configuration.QuestConfigurationField;
 
 /**
@@ -69,7 +71,7 @@ public class Project {
 		quests = new LinkedList<>();
 		spells = new LinkedList<>();
 		regions = new LinkedList<>();
-		dirty();
+		config = AlterablePluginConfiguration.copyOf(PluginConfiguration.generateDefault());
 	}
 	
 	/**
@@ -167,7 +169,6 @@ public class Project {
 			return null;
 		
 		Project project = new Project();
-		project.dirty(false);
 		project.config = new AlterablePluginConfiguration(loadFile);
 		
 		project.saveFile = loadFile;
@@ -268,7 +269,7 @@ public class Project {
 		Driver.driver.getExplorer().addItem(quest, ProjectExplorer.Section.QUEST, index);
 	}
 	
-	private void dirty() {
+	public void dirty() {
 		dirty(true);
 	}
 	
@@ -297,5 +298,9 @@ public class Project {
 		}
 		
 		return false;
+	}
+	
+	public void openSettings() {
+		Driver.driver.getEditor().openWindow(new ProjectWindow(this, config));
 	}
 }
