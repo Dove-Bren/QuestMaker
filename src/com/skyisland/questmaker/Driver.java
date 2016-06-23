@@ -7,6 +7,7 @@ import java.awt.MenuBar;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Logger;
 
@@ -199,14 +200,14 @@ public class Driver {
 		toolBar.setPreferredSize(new Dimension(0,32));
 		JButton button = new JButton();
 		
-//		URL iconAddr = null;;
-//		try {
-//			iconAddr = ((new File("src/resources/icon_open.png")).toURI().toURL());
-//		} catch (MalformedURLException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		URL iconAddr = Driver.class.getResource("icon_open.png");
+		URL iconAddr = null;;
+		try {
+			iconAddr = ((new File("src/resources/icon_open.png")).toURI().toURL());
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//URL iconAddr = Driver.class.getResource("icon_open.png");
 		
 		button.setToolTipText("Open a QuestManager project");
 		
@@ -222,8 +223,6 @@ public class Driver {
 		
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-		splitPane.setForeground(Color.RED);
-		splitPane.setBackground(Color.GREEN);
 		mainWindow.getContentPane().add(splitPane, BorderLayout.CENTER);
 		
 		//fileViewer = new JScrollPane(new JPanel());
