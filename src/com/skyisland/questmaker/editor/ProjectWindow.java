@@ -2,8 +2,6 @@ package com.skyisland.questmaker.editor;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,6 +18,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.Spring;
+import javax.swing.SpringLayout;
 
 import org.bukkit.Material;
 
@@ -66,7 +66,8 @@ public class ProjectWindow implements EditorWindow {
 		this.config = config;
 		booleanSwitches = new HashMap<>();
 		gui = new JPanel();
-		gui.setLayout(new BoxLayout(gui, BoxLayout.PAGE_AXIS));//new SpringLayout());
+		//wrappingGui.scroll
+		//gui.setLayout(new BoxLayout(gui, BoxLayout.PAGE_AXIS));//new SpringLayout());
 		setupGui();
 	}
 
@@ -88,19 +89,40 @@ public class ProjectWindow implements EditorWindow {
 	private void setupGui() {
 		gui.setBackground(Color.DARK_GRAY);
 		gui.setForeground(Color.WHITE);
-		gui.setPreferredSize(new Dimension(250, 500));
+		
+		SpringLayout lay = new SpringLayout();
+		gui.setLayout(lay);
+		
 		JLabel cache;
-		Component comp;
+//		cache = new JLabel("Quest Editor");
+//		cache.setFon
+//		gui.add(cache);
+//		lay.putConstraint(SpringLayout.WEST, cache, Spring.constant(20, 40, 60), SpringLayout.EAST, gui);
+		
+		//gui.setPreferredSize(new Dimension(250, 500));
+		Component comp, last = null;
 		for (PluginConfiguration.PluginConfigurationKey field : PluginConfiguration.PluginConfigurationKey.values()) {
 			if (ignoreKeys.contains(field))
 				continue;
 			cache = new JLabel(field.getName(), JLabel.TRAILING);
+			cache.setForeground(Color.WHITE);
 			comp = createField(field);
 			cache.setLabelFor(comp);
+			cache.setToolTipText(field.getDescription());
 			gui.add(cache);
 			gui.add(comp);
+			lay.putConstraint(SpringLayout.WEST, comp, Spring.constant(10, 20, 20), SpringLayout.EAST, cache);
+			lay.putConstraint(SpringLayout.VERTICAL_CENTER, cache, Spring.constant(0, 0, 0), SpringLayout.VERTICAL_CENTER, comp);
+			if (last != null) {
+				lay.putConstraint(SpringLayout.NORTH, comp, Spring.constant(10), SpringLayout.SOUTH, last);
+				lay.putConstraint(SpringLayout.WEST, comp, 0, SpringLayout.WEST, last);
+			}
+			last = comp;
 		}
 		
+		lay.putConstraint(SpringLayout.SOUTH, gui, 20, SpringLayout.SOUTH, last);
+		
+		gui.validate();
 		//SwingUtilities.gr;
 	}
 	
@@ -113,7 +135,7 @@ public class ProjectWindow implements EditorWindow {
 			for (String e : list)
 				comp.addItem(e);
 			
-			comp.setSelectedItem(config.getBaseValue(key));
+			comp.setSelectedItem(YamlWriter.toStandardFormat(config.getBaseValue(key).toString()));
 			
 			return comp;
 		}
@@ -122,6 +144,7 @@ public class ProjectWindow implements EditorWindow {
 			ButtonGroup group = new ButtonGroup();
 			JPanel buttonPanel = new JPanel();
 			buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+			buttonPanel.setBackground(Color.DARK_GRAY);
 			
 			boolean on = (Boolean) config.getBaseValue(key);
 			

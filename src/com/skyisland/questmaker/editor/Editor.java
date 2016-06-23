@@ -1,10 +1,12 @@
 package com.skyisland.questmaker.editor;
 
+import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
+import javax.swing.JScrollPane;
 
 public class Editor {
 
@@ -29,9 +31,13 @@ public class Editor {
 		
 		JInternalFrame frame = new JInternalFrame(window.getWindowTitle());
 		frame.setVisible(true);
-		frame.add(window.getContainingComponent());
-		frame.setAutoscrolls(true);
+		JScrollPane spane = new JScrollPane();
+		spane.setViewportView(window.getContainingComponent());
+		frame.add(spane);
 		frame.setClosable(true);
+		frame.setAutoscrolls(true);
+		frame.setResizable(true);
+		frame.setPreferredSize(new Dimension(300, 500));
 		frame.pack();
 		openWindows.put(window, frame);
 		pane.add(frame);
