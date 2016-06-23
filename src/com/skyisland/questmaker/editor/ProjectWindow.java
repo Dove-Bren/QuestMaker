@@ -2,14 +2,16 @@ package com.skyisland.questmaker.editor;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
@@ -52,19 +54,108 @@ public class ProjectWindow implements EditorWindow {
 		}
 		return materialList;
 	}
+	
+	private static class TextFieldHolder implements FocusListener {
+		
+		protected enum Type {
+			DOUBLE,
+			INT,
+			OTHER;
+		}
+		
+		private PluginConfigurationKey key;
+		
+		private JTextField field;
+		
+		private ProjectWindow window;
+		
+		Type type;
+		
+		private TextFieldHolder(ProjectWindow window, PluginConfigurationKey key, JTextField field, Type type) {
+			this.key = key;
+			this.window = window;
+			this.field = field;
+			this.type = type;
+		}
+		
+		@Override
+		public void focusGained(FocusEvent e) {
+			;
+		}
+
+		@Override
+		public void focusLost(FocusEvent e) {
+			Object value;
+			String text = field.getText().trim();
+			try {
+			if (type == Type.DOUBLE)
+				value = Double.parseDouble(text);
+			else if (type == Type.INT)
+				value = Integer.parseInt(text);
+			else
+				value = text;
+			} catch (NumberFormatException ex) {
+				field.setText(window.config.getBaseValue(key).toString());
+				return;
+			}
+			
+			//just store string 
+			window.config.setBaseValue(key, value);
+		}
+	}
+	
+	private static class MaterialFieldHolder extends AbstractAction {
+		
+		private PluginConfigurationKey key;
+		
+		private JComboBox field;
+		
+		private ProjectWindow window;
+		
+		private MaterialFieldHolder(ProjectWindow window, PluginConfigurationKey key, JComboBox field) {
+			this.key = key;
+			this.window = window;
+			this.field = field;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String fieldName = (String) field.getSelectedItem();
+			//just store string 
+			window.config.setBaseValue(key, fieldName);
+		}
+	}
+	
+	private static class BooleanFieldHolder extends AbstractAction {
+		
+		private PluginConfigurationKey key;
+		
+		private JRadioButton field;
+		
+		private ProjectWindow window;
+		
+		private BooleanFieldHolder(ProjectWindow window, PluginConfigurationKey key, JRadioButton field) {
+			this.key = key;
+			this.window = window;
+			this.field = field;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			//just store string 
+			window.config.setBaseValue(key, !field.getText().toLowerCase().contains("false"));
+		}
+	}
 
 	private Project project;
 	
 	private AlterablePluginConfiguration config;
-	
-	private Map<PluginConfigurationKey, ButtonGroup> booleanSwitches;
 	
 	private JPanel gui;
 	
 	public ProjectWindow(Project project, AlterablePluginConfiguration config) {
 		this.project = project;
 		this.config = config;
-		booleanSwitches = new HashMap<>();
 		gui = new JPanel();
 		//wrappingGui.scroll
 		//gui.setLayout(new BoxLayout(gui, BoxLayout.PAGE_AXIS));//new SpringLayout());
@@ -88,7 +179,6 @@ public class ProjectWindow implements EditorWindow {
 	
 	private void setupGui() {
 		gui.setBackground(Color.DARK_GRAY);
-		gui.setForeground(Color.WHITE);
 		
 		SpringLayout lay = new SpringLayout();
 		gui.setLayout(lay);
@@ -136,6 +226,7 @@ public class ProjectWindow implements EditorWindow {
 				comp.addItem(e);
 			
 			comp.setSelectedItem(YamlWriter.toStandardFormat(config.getBaseValue(key).toString()));
+			comp.addActionListener(new MaterialFieldHolder(this, key, comp));
 			
 			return comp;
 		}
@@ -144,26 +235,38 @@ public class ProjectWindow implements EditorWindow {
 			ButtonGroup group = new ButtonGroup();
 			JPanel buttonPanel = new JPanel();
 			buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-			buttonPanel.setBackground(Color.DARK_GRAY);
 			
 			boolean on = (Boolean) config.getBaseValue(key);
 			
 			JRadioButton button;
 			button = new JRadioButton("true", on);
+			button.setBackground(Color.DARK_GRAY);
+			button.setForeground(Color.WHITE);
+			button.addActionListener(new BooleanFieldHolder(this, key, button));
 			group.add(button);
 			buttonPanel.add(button);
 			button = new JRadioButton("false", !on);
+			button.setBackground(Color.DARK_GRAY);
+			button.setForeground(Color.WHITE);
+			button.addActionListener(new BooleanFieldHolder(this, key, button));
 			group.add(button);
 			buttonPanel.add(button);
 			
-			booleanSwitches.put(key, group);
 			return buttonPanel;
 		}
+		
+		
 		
 		//anything else just do a text field
 		JTextField field = new JTextField(
 				config.getBaseValue(key).toString(), 20
 				);
+		if (key.getDef() instanceof Double) 
+			field.addFocusListener(new TextFieldHolder(this, key, field, TextFieldHolder.Type.DOUBLE));
+		else if (key.getDef() instanceof Integer)
+			field.addFocusListener(new TextFieldHolder(this, key, field, TextFieldHolder.Type.INT));
+		else
+			field.addFocusListener(new TextFieldHolder(this, key, field, TextFieldHolder.Type.OTHER));
 		
 		
 		return field;

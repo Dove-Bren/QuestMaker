@@ -7,6 +7,10 @@ import java.util.Map;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
+
+import com.skyisland.questmaker.actions.ExitAction;
 
 public class Editor {
 
@@ -39,6 +43,49 @@ public class Editor {
 		frame.setResizable(true);
 		frame.setPreferredSize(new Dimension(300, 500));
 		frame.pack();
+		frame.addInternalFrameListener(new InternalFrameListener() {
+			
+			@Override
+			public void internalFrameClosed(InternalFrameEvent e) {
+				closeWindow(window);
+			}
+
+			@Override
+			public void internalFrameOpened(InternalFrameEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void internalFrameClosing(InternalFrameEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void internalFrameIconified(InternalFrameEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void internalFrameDeiconified(InternalFrameEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void internalFrameActivated(InternalFrameEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void internalFrameDeactivated(InternalFrameEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		openWindows.put(window, frame);
 		pane.add(frame);
 	}
