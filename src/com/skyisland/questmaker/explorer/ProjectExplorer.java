@@ -1,5 +1,6 @@
 package com.skyisland.questmaker.explorer;
 
+import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
@@ -55,8 +56,10 @@ public class ProjectExplorer {
 		    }
 		});
 		
-		this.panel.add(new JScrollPane(list));
-		
+		JScrollPane pane = new JScrollPane(list);
+		list.setBackground(new Color(114, 114, 150));
+		list.setForeground(new Color(255, 255, 230));
+		this.panel.add(pane);
 		
 		this.questSection = new LinkedList<>();
 		this.regionSection = new LinkedList<>();

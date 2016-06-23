@@ -41,7 +41,7 @@ public class Editor {
 		frame.setClosable(true);
 		frame.setAutoscrolls(true);
 		frame.setResizable(true);
-		frame.setPreferredSize(new Dimension(300, 500));
+		frame.setPreferredSize(new Dimension(500, 750));
 		frame.pack();
 		frame.addInternalFrameListener(new InternalFrameListener() {
 			

@@ -203,6 +203,7 @@ public class ProjectWindow implements EditorWindow {
 			gui.add(comp);
 			lay.putConstraint(SpringLayout.WEST, comp, Spring.constant(10, 20, 20), SpringLayout.EAST, cache);
 			lay.putConstraint(SpringLayout.VERTICAL_CENTER, cache, Spring.constant(0, 0, 0), SpringLayout.VERTICAL_CENTER, comp);
+			lay.putConstraint(SpringLayout.WEST, cache, 20, SpringLayout.WEST, gui);
 			if (last != null) {
 				lay.putConstraint(SpringLayout.NORTH, comp, Spring.constant(10), SpringLayout.SOUTH, last);
 				lay.putConstraint(SpringLayout.WEST, comp, 0, SpringLayout.WEST, last);

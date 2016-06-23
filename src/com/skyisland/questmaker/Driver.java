@@ -16,6 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -87,7 +88,7 @@ public class Driver {
 	
 	public static final String MAIN_TITLE = "QuestMaker";
 	
-	private static final Dimension DEFAULT_SIZE = new Dimension(800, 640);
+	private static final Dimension DEFAULT_SIZE = new Dimension(1200, 900);
 
 	//Gui members
 	
@@ -219,19 +220,25 @@ public class Driver {
 		toolBar.add(button);
 		mainWindow.getContentPane().add(toolBar, BorderLayout.NORTH);
 		
+		JSplitPane splitPane = new JSplitPane();
+		splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+		splitPane.setForeground(Color.RED);
+		splitPane.setBackground(Color.GREEN);
+		mainWindow.getContentPane().add(splitPane, BorderLayout.CENTER);
+		
 		//fileViewer = new JScrollPane(new JPanel());
 		fileViewer = new JPanel();
 		fileViewer.setLayout(new BorderLayout());
 		fileViewer.setPreferredSize(new Dimension(200, 400));
-		mainWindow.getContentPane().add(fileViewer, BorderLayout.LINE_START);
+		splitPane.setTopComponent(fileViewer);
 		explorer = new ProjectExplorer(fileViewer);
 		
 		
 		editorPane = new JDesktopPane();
 		editorPane.setPreferredSize(new Dimension(400,400));
-		editorPane.setBackground(Color.WHITE);
+		editorPane.setBackground(new Color(70, 70, 100));
 		editorPane.setBorder(BorderFactory.createLoweredSoftBevelBorder());
-		mainWindow.getContentPane().add(editorPane, BorderLayout.CENTER);
+		splitPane.setRightComponent(editorPane);
 		this.editor = new Editor(editorPane);
 		
 		createMenus(mainWindow);
