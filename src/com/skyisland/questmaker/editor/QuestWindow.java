@@ -13,26 +13,6 @@ import javax.swing.JTextField;
 import com.skyisland.questmaker.quest.QuestTemplate;
 
 public class QuestWindow implements EditorWindow {
-
-	private enum Fields {
-		NAME("Name", new JTextField()),
-		DESCRIPTION("Description", new JTextArea("Short Description Here", 30, 1), new Dimension(0, 10));
-		
-		
-		private String label;
-		
-		private Component component;
-		
-		private Fields(String label, Component component) {
-			this.label = label;
-			this.component = component;
-		}
-		
-		private Fields(String label, Component component, Dimension preferredSize) {
-			this(label, component);
-			component.setPreferredSize(preferredSize);
-		}
-	}
 	
 	private QuestTemplate template;
 	

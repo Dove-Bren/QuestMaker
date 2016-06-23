@@ -21,10 +21,15 @@ import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import com.skyisland.questmaker.actions.ExitAction;
 import com.skyisland.questmaker.actions.OpenProjectAction;
 import com.skyisland.questmaker.configutils.FakeLocationState;
+import com.skyisland.questmaker.configutils.ShallowItemMeta;
+import com.skyisland.questmaker.configutils.ShallowItemStack;
+import com.skyisland.questmaker.configutils.ShallowPotionEffectType;
 import com.skyisland.questmaker.editor.Editor;
 import com.skyisland.questmaker.explorer.ProjectExplorer;
 import com.skyisland.questmaker.npc.BankNPC;
@@ -123,7 +128,7 @@ public class Driver {
 	public static void main(String[] args) {
 		QuestManagerPlugin.logger = Logger.getLogger("QuestMaker");
 		//QuestManagerPlugin.registerConfigurationClasses();
-		//registerConfigurationClasses(); //do our own, a little custom
+		registerConfigurationClasses(); //do our own, a little custom
 		//CraftItemFactory.instance();
 		//QuestManagerPlugin.questManagerPlugin.
 		
@@ -132,6 +137,43 @@ public class Driver {
 	}
 	
 	private static void registerConfigurationClasses() {
+		if (QuestManagerPlugin.bukkit)
+			return;
+		
+		ConfigurationSerialization.registerClass(ShallowItemStack.class, "org.bukkit.inventory.ItemStack");
+		ConfigurationSerialization.registerClass(ShallowItemMeta.class, "ItemMeta");
+		ConfigurationSerialization.registerClass(PotionEffect.class, "PotionEffect");
+		
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("ABSORPTION", PotionEffectType.ABSORPTION));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("BLINDNESS", PotionEffectType.BLINDNESS));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("CONFUSION", PotionEffectType.CONFUSION));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("DAMAGE_RESISTANCE", PotionEffectType.DAMAGE_RESISTANCE));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("FAST_DIGGING", PotionEffectType.FAST_DIGGING));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("FIRE_RESISTANCE", PotionEffectType.FIRE_RESISTANCE));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("GLOWING", PotionEffectType.GLOWING));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("HARM", PotionEffectType.HARM));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("HEAL", PotionEffectType.HEAL));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("HEALTH_BOOST", PotionEffectType.HEALTH_BOOST));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("HUNGER", PotionEffectType.HUNGER));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("INCREASE_DAMAGE", PotionEffectType.INCREASE_DAMAGE));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("INVISIBILITY", PotionEffectType.INVISIBILITY));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("JUMP", PotionEffectType.JUMP));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("LEVITATION", PotionEffectType.LEVITATION));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("LUCK", PotionEffectType.LUCK));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("NIGHT_VISION", PotionEffectType.NIGHT_VISION));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("POISON", PotionEffectType.POISON));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("REGENERATION", PotionEffectType.REGENERATION));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("SATURATION", PotionEffectType.SATURATION));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("SLOW", PotionEffectType.SLOW));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("SLOW_DIGGING", PotionEffectType.SLOW_DIGGING));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("SPEED", PotionEffectType.SPEED));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("UNLUCK", PotionEffectType.UNLUCK));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("WATER_BREATHING", PotionEffectType.WATER_BREATHING));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("WEAKNESS", PotionEffectType.WEAKNESS));
+		PotionEffectType.registerPotionEffectType(new ShallowPotionEffectType("WITHER", PotionEffectType.WITHER));
+		PotionEffectType.stopAcceptingRegistrations();
+		
+		
 		FakeLocationState.registerWithAliases();
 		QuestPlayer.registerWithAliases();
 		Party.registerWithAliases();
@@ -184,6 +226,7 @@ public class Driver {
 		BankStorageManager.registerSerialization();
 		BankNPC.registerWithAliases();
 		ImbuementSet.registerWithAliases();
+		
 	}
 	
 	public Driver() {
