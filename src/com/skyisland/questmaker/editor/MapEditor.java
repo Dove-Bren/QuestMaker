@@ -230,6 +230,21 @@ public class MapEditor<K, V> implements EditorWindow {
 		lay.putConstraint(SpringLayout.SOUTH, menu, 5, SpringLayout.SOUTH, button);
 		
 		
+		button = new JButton("Add");
+		button.setPreferredSize(new Dimension(80, 30));
+		button.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addRow(null, null);
+			}
+		});
+		menu.add(button);
+		lay.putConstraint(SpringLayout.WEST, button, 400, SpringLayout.WEST, menu);
+		lay.putConstraint(SpringLayout.NORTH, button, 5, SpringLayout.NORTH, menu);
+		lay.putConstraint(SpringLayout.SOUTH, menu, 5, SpringLayout.SOUTH, button);
+		
+		
 		button = new JButton("Insert");
 		button.setPreferredSize(new Dimension(80, 30));
 		button.addActionListener(new ActionListener() {
@@ -250,7 +265,7 @@ public class MapEditor<K, V> implements EditorWindow {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				insertRow();
+				deleteRow();
 			}
 		});
 		menu.add(button);
@@ -316,7 +331,7 @@ public class MapEditor<K, V> implements EditorWindow {
 		lay.putConstraint(SpringLayout.NORTH, row.right, 0, SpringLayout.NORTH, row.left);
 		lay.putConstraint(SpringLayout.SOUTH, row.right, 0, SpringLayout.SOUTH, row.left);
 		
-		cells.validate();
+		cells.revalidate();
 		
 		return row;
 	}
@@ -335,10 +350,32 @@ public class MapEditor<K, V> implements EditorWindow {
 		last = map.get(selected);
 		last.setValues(null, null);
 		
+		selected++;
 	}
 	
 	private void deleteRow() {
+		TableRow last, cur;
+		ListIterator<TableRow> it = map.listIterator(selected);
+		last = it.next();
+		while (it.hasNext()) {
+			cur = it.next();
+			last.setValues(cur.key, cur.value);
+			last = cur;
+		}
 		
+		TableRow row = map.get(map.size() - 1);
+		//cells.remove(cells.getComponentCount() - 1);
+		//cells.remove(cells.getComponentCount() - 1);
+		SpringLayout lay = (SpringLayout) cells.getLayout();
+		lay.removeLayoutComponent(row.left);
+		lay.removeLayoutComponent(row.right);
+		cells.remove(row.left);
+		cells.remove(row.right);
+		map.remove(map.size() - 1);
+		
+		cells.revalidate();
+		cells.repaint();
+		selected--;
 	}
 	
 	private void submit() {
