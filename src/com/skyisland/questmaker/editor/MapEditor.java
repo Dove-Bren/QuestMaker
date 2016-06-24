@@ -11,6 +11,7 @@ import java.awt.event.FocusListener;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -35,6 +36,8 @@ public class MapEditor<K, V> implements EditorWindow {
 	
 	private static int MENU_HEIGHT = 40;
 	
+	protected static int ROW_ID_BASE = 0;
+	
 	private class TableRow {
 		
 		private JTextField left;
@@ -45,14 +48,19 @@ public class MapEditor<K, V> implements EditorWindow {
 		
 		private V value;
 		
+		private int id;
+		
+		
 		public TableRow(K startingKey, V startingValue) {
+			id = ROW_ID_BASE++;
 			key = startingKey;
 			value = startingValue;
-			this.left = new JTextField(startingKey.toString(), 20);
+			final TableRow caller = this;
+			this.left = new JTextField(key == null ? "" : startingKey.toString(), 20);
 			this.left.addFocusListener(new FocusListener() {
 				@Override
 				public void focusGained(FocusEvent e) {
-					;
+					selected(caller);
 				}
 
 				@Override
@@ -68,14 +76,15 @@ public class MapEditor<K, V> implements EditorWindow {
 					if (temp != null)
 						key = temp;
 					
-					left.setText(key.toString());
+					left.setText(key == null ? "" : key.toString());
 				}
 			});
-			this.right = new JTextField(startingValue.toString());
+			
+			this.right = new JTextField(value == null ? "" : value.toString());
 			this.right.addFocusListener(new FocusListener() {
 				@Override
 				public void focusGained(FocusEvent e) {
-					;
+					selected(caller);
 				}
 
 				@Override
@@ -90,7 +99,7 @@ public class MapEditor<K, V> implements EditorWindow {
 					if (temp != null)
 						value = temp;
 					
-					right.setText(value.toString());
+					right.setText(value == null ? "" : value.toString());
 				}
 			});
 			
@@ -102,7 +111,25 @@ public class MapEditor<K, V> implements EditorWindow {
 			right.setCaretColor(right.getForeground());
 		}
 		
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof MapEditor.TableRow)
+				return ((MapEditor<?,?>.TableRow) o).id == id;
+			
+			return false;
+		}
 		
+		@Override
+		public int hashCode() {
+			return id;
+		}
+		
+		private void setValues(K key, V value) {
+			this.key = key;
+			this.value = value;
+			left.setText(key == null ? "" : key.toString());
+			right.setText(value == null ? "" : value.toString());
+		}
 	}
 
 	private List<TableRow> map;
@@ -119,7 +146,9 @@ public class MapEditor<K, V> implements EditorWindow {
 	
 	private JPanel gui;
 	
-	private int selected;
+	private JPanel cells;
+	
+	protected int selected;
 	
 	public static <K, V> void showEditor(AlterablePluginConfiguration config, PluginConfigurationKey key,
 			String ownerName, Map<K, V> map, StringParser<K> keyParser, StringParser<V> valueParser) {
@@ -236,20 +265,20 @@ public class MapEditor<K, V> implements EditorWindow {
 		gui.setLayout(new BorderLayout());
 		gui.add(menu, BorderLayout.NORTH);
 		
-		JPanel content = new JPanel();
+		cells = new JPanel();
 		lay = new SpringLayout();
-		content.setLayout(lay);
+		cells.setLayout(lay);
 		TableRow last = null;
 		for (TableRow row : map) {
-			content.add(row.left);
-			content.add(row.right);
+			cells.add(row.left);
+			cells.add(row.right);
 			if (last != null)
 				lay.putConstraint(SpringLayout.NORTH, row.left, 0, SpringLayout.SOUTH, last.left);
 			else
-				lay.putConstraint(SpringLayout.NORTH, row.left, 0, SpringLayout.NORTH, content);
+				lay.putConstraint(SpringLayout.NORTH, row.left, 0, SpringLayout.NORTH, cells);
 			
 			lay.putConstraint(SpringLayout.WEST, row.right, 0, SpringLayout.EAST, row.left);
-			lay.putConstraint(SpringLayout.EAST, row.right, 0, SpringLayout.EAST, content);
+			lay.putConstraint(SpringLayout.EAST, row.right, 0, SpringLayout.EAST, cells);
 			lay.putConstraint(SpringLayout.SOUTH, row.left, 50, SpringLayout.NORTH, row.left);
 			lay.putConstraint(SpringLayout.NORTH, row.right, 0, SpringLayout.NORTH, row.left);
 			lay.putConstraint(SpringLayout.SOUTH, row.right, 0, SpringLayout.SOUTH, row.left);
@@ -257,10 +286,10 @@ public class MapEditor<K, V> implements EditorWindow {
 			last = row;
 		}
 		
-		lay.putConstraint(SpringLayout.SOUTH, content, Spring.constant(0, 0, 1000), SpringLayout.SOUTH, last.left);
+		//lay.putConstraint(SpringLayout.SOUTH, cells, Spring.constant(0, 0, 1000), SpringLayout.SOUTH, last.left);
 		
-		content.setBackground(Color.DARK_GRAY);
-		gui.add(content, BorderLayout.CENTER);
+		cells.setBackground(Color.DARK_GRAY);
+		gui.add(cells, BorderLayout.CENTER);
 		
 		gui.setPreferredSize(new Dimension(
 				Math.max(MIN_HEIGHT, MENU_HEIGHT + map.size() * 50), 800));
@@ -268,12 +297,43 @@ public class MapEditor<K, V> implements EditorWindow {
 	}
 	
 	private TableRow addRow(K key, V value) {
-		TableRow row = new TableRow(key, value);
+		TableRow row = new TableRow(key, value), last = null;
+		if (!map.isEmpty())
+			last = map.get(map.size() - 1);
 		map.add(row);
+		cells.add(row.left);
+		cells.add(row.right);
+		SpringLayout lay = (SpringLayout) cells.getLayout();
+		
+		if (last != null)
+			lay.putConstraint(SpringLayout.NORTH, row.left, 0, SpringLayout.SOUTH, last.left);
+		else
+			lay.putConstraint(SpringLayout.NORTH, row.left, 0, SpringLayout.NORTH, cells);
+		
+		lay.putConstraint(SpringLayout.WEST, row.right, 0, SpringLayout.EAST, row.left);
+		lay.putConstraint(SpringLayout.EAST, row.right, 0, SpringLayout.EAST, cells);
+		lay.putConstraint(SpringLayout.SOUTH, row.left, 50, SpringLayout.NORTH, row.left);
+		lay.putConstraint(SpringLayout.NORTH, row.right, 0, SpringLayout.NORTH, row.left);
+		lay.putConstraint(SpringLayout.SOUTH, row.right, 0, SpringLayout.SOUTH, row.left);
+		
+		cells.validate();
+		
 		return row;
 	}
 	
 	private void insertRow() {
+		TableRow last, cur;
+		addRow(null, null);
+		ListIterator<TableRow> it = map.listIterator(map.size());
+		cur = it.previous();
+		while (it.previousIndex() >= selected) {
+			last = it.previous();
+			cur.setValues(last.key, last.value);
+			cur = last;
+		}
+		
+		last = map.get(selected);
+		last.setValues(null, null);
 		
 	}
 	
@@ -285,8 +345,14 @@ public class MapEditor<K, V> implements EditorWindow {
 		
 	}
 	
-	private void selected(int pos) {
-		this.selected = pos;
+	private void selected(TableRow row) {
+		int index = 0;
+		for (TableRow a : map) {
+			if (a.equals(row)) {
+				selected = index;
+				return;
+			}
+			index++;
+		}
 	}
-
 }
