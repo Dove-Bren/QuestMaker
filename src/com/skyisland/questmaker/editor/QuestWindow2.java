@@ -4,21 +4,18 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -28,22 +25,19 @@ import javax.swing.Spring;
 import javax.swing.SpringLayout;
 
 import org.bukkit.Material;
-import org.bukkit.Sound;
 
 import com.skyisland.questmaker.project.Project;
-import com.skyisland.questmaker.swingutils.DoubleParser;
-import com.skyisland.questmaker.swingutils.SoundParser;
 import com.skyisland.questmanager.configuration.AlterablePluginConfiguration;
 import com.skyisland.questmanager.configuration.PluginConfiguration;
 import com.skyisland.questmanager.configuration.PluginConfiguration.PluginConfigurationKey;
 import com.skyisland.questmanager.configuration.utils.YamlWriter;
 
-public class ProjectWindow implements EditorWindow {
+public class QuestWindow2 implements EditorWindow {
 	
 	private static Set<PluginConfiguration.PluginConfigurationKey> ignoreKeys = new HashSet<>();
 	
 	{
-		//ignoreKeys.add(PluginConfigurationKey.MUSICDURATIONS);
+		ignoreKeys.add(PluginConfigurationKey.MUSICDURATIONS);
 		ignoreKeys.add(PluginConfigurationKey.VERSION);
 		ignoreKeys.add(PluginConfigurationKey.WORLDS);
 	}
@@ -74,11 +68,11 @@ public class ProjectWindow implements EditorWindow {
 		
 		private JTextField field;
 		
-		private ProjectWindow window;
+		private QuestWindow2 window;
 		
 		Type type;
 		
-		private TextFieldHolder(ProjectWindow window, PluginConfigurationKey key, JTextField field, Type type) {
+		private TextFieldHolder(QuestWindow2 window, PluginConfigurationKey key, JTextField field, Type type) {
 			this.key = key;
 			this.window = window;
 			this.field = field;
@@ -118,9 +112,9 @@ public class ProjectWindow implements EditorWindow {
 		
 		private JComboBox<String> field;
 		
-		private ProjectWindow window;
+		private QuestWindow2 window;
 		
-		private MaterialFieldHolder(ProjectWindow window, PluginConfigurationKey key, JComboBox<String> field) {
+		private MaterialFieldHolder(QuestWindow2 window, PluginConfigurationKey key, JComboBox<String> field) {
 			this.key = key;
 			this.window = window;
 			this.field = field;
@@ -141,9 +135,9 @@ public class ProjectWindow implements EditorWindow {
 		
 		private JRadioButton field;
 		
-		private ProjectWindow window;
+		private QuestWindow2 window;
 		
-		private BooleanFieldHolder(ProjectWindow window, PluginConfigurationKey key, JRadioButton field) {
+		private BooleanFieldHolder(QuestWindow2 window, PluginConfigurationKey key, JRadioButton field) {
 			this.key = key;
 			this.window = window;
 			this.field = field;
@@ -163,7 +157,7 @@ public class ProjectWindow implements EditorWindow {
 	
 	private JPanel gui;
 	
-	public ProjectWindow(Project project, AlterablePluginConfiguration config) {
+	public QuestWindow2(Project project, AlterablePluginConfiguration config) {
 		this.project = project;
 		this.config = config;
 		gui = new JPanel();
@@ -314,26 +308,6 @@ public class ProjectWindow implements EditorWindow {
 			return buttonPanel;
 		}
 		
-//		if (key.getDef() instanceof Map) {
-//			MapEditor edit = new MapEditor(config, key, "Project", (Map<>))
-//		}
-		if (key == PluginConfigurationKey.MUSICDURATIONS) {
-			Map<Sound, Double> map = config.getMusicDurations();
-			
-			JButton button = new JButton("Edit");
-			button.addActionListener(new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					MapEditor.showEditor(config, key, "Project", map,
-							SoundParser.instance(), DoubleParser.instance());
-				}
-				
-			});
-			
-			
-			return button;
-		}
 		
 		
 		//anything else just do a text field

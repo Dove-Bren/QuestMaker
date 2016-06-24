@@ -24,6 +24,10 @@ public class Editor {
 	}
 	
 	public void openWindow(EditorWindow window) {
+		openWindow(window, new Dimension(500, 750));
+	}
+	
+	public void openWindow(EditorWindow window, Dimension windowSize){
 		if (window == null)
 			return;
 		
@@ -41,7 +45,7 @@ public class Editor {
 		frame.setClosable(true);
 		frame.setAutoscrolls(true);
 		frame.setResizable(true);
-		frame.setPreferredSize(new Dimension(500, 750));
+		frame.setPreferredSize(windowSize);
 		frame.pack();
 		frame.addInternalFrameListener(new InternalFrameListener() {
 			
