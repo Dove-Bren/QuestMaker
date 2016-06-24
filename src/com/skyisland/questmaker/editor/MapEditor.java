@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.Spring;
@@ -65,18 +66,7 @@ public class MapEditor<K, V> implements EditorWindow {
 
 				@Override
 				public void focusLost(FocusEvent e) {
-					if (keyParser == null) {
-						QuestManagerPlugin.logger.warning("No parser set for key in map editor!");
-						return;
-					}
-						
-					String text = left.getText().trim();
-
-					K temp = keyParser.parse(text);
-					if (temp != null)
-						key = temp;
-					
-					left.setText(key == null ? "" : key.toString());
+					doKeyInput();
 				}
 			});
 			
@@ -89,17 +79,7 @@ public class MapEditor<K, V> implements EditorWindow {
 
 				@Override
 				public void focusLost(FocusEvent e) {
-					if (valueParser == null) {
-						QuestManagerPlugin.logger.warning("No parser set for value in map editor!");
-						return;
-					}
-						
-					String text = right.getText().trim();
-					V temp = valueParser.parse(text);
-					if (temp != null)
-						value = temp;
-					
-					right.setText(value == null ? "" : value.toString());
+					doValueInput();
 				}
 			});
 			
@@ -109,6 +89,39 @@ public class MapEditor<K, V> implements EditorWindow {
 			right.setForeground(new Color(255, 255, 220));
 			left.setCaretColor(left.getForeground());
 			right.setCaretColor(right.getForeground());
+		}
+		
+		private void doKeyInput() {
+			if (keyParser == null) {
+				QuestManagerPlugin.logger.warning("No parser set for key in map editor!");
+				return;
+			}
+				
+			String text = left.getText().trim();
+
+			K temp = keyParser.parse(text), old = key;
+			if (temp != null)
+				key = temp;
+			
+			if (!old.equals(key))
+				dirty = true;
+			left.setText(key == null ? "" : key.toString());
+		}
+		
+		private void doValueInput() {
+			if (valueParser == null) {
+				QuestManagerPlugin.logger.warning("No parser set for value in map editor!");
+				return;
+			}
+				
+			String text = right.getText().trim();
+			V temp = valueParser.parse(text), old = value;
+			if (temp != null)
+				value = temp;
+			
+			if (!old.equals(value))
+				dirty = true;
+			right.setText(value == null ? "" : value.toString());
 		}
 		
 		@Override
@@ -131,6 +144,8 @@ public class MapEditor<K, V> implements EditorWindow {
 			right.setText(value == null ? "" : value.toString());
 		}
 	}
+	
+	private boolean dirty;
 
 	private List<TableRow> map;
 	
@@ -140,9 +155,7 @@ public class MapEditor<K, V> implements EditorWindow {
 	
 	private String name;
 	
-	private AlterablePluginConfiguration config;
-	
-	private PluginConfigurationKey key;
+	private MapEditReceiver<K, V> sendback;
 	
 	private JPanel gui;
 	
@@ -150,26 +163,28 @@ public class MapEditor<K, V> implements EditorWindow {
 	
 	protected int selected;
 	
-	public static <K, V> void showEditor(AlterablePluginConfiguration config, PluginConfigurationKey key,
-			String ownerName, Map<K, V> map, StringParser<K> keyParser, StringParser<V> valueParser) {
-		MapEditor<K, V> editor = new MapEditor<K, V>(config, key, ownerName, map);
+	private int key;
+	
+	public static <K, V> void showEditor(int key, MapEditReceiver<K, V> receiver,
+			String title, Map<K, V> map, StringParser<K> keyParser, StringParser<V> valueParser) {
+		MapEditor<K, V> editor = new MapEditor<K, V>(key, receiver, title, map);
 		editor.supplyKeyParser(keyParser);
 		editor.supplyValueParser(valueParser);
 		Driver.driver.getEditor().openWindow(
 				editor, new Dimension(800, 400));
 	}
 	
-	public MapEditor(AlterablePluginConfiguration config, PluginConfigurationKey key, String ownerName, Map<K, V> map) {
+	public MapEditor(int key, MapEditReceiver<K, V> receiver, String title, Map<K, V> map) {
 		this.map = new LinkedList<>();
+		this.key = key;
 		for (Entry<K, V> entry : map.entrySet()) {
 			this.map.add(new TableRow(entry.getKey(), entry.getValue()));
 		}
-		this.name = ownerName;
-		this.config = config;
-		this.key = key;
+		this.name = title;
+		this.sendback = receiver;
 		this.gui = new JPanel();
 		selected = 0;
-		
+		dirty = false;
 		setupGui();
 	}
 	
@@ -183,13 +198,30 @@ public class MapEditor<K, V> implements EditorWindow {
 	
 	@Override
 	public String getWindowTitle() {
-		return name + ": " + YamlWriter.toStandardFormat(key.name());
+		return "Map Editor: " + name;
 	}
 
 	@Override
 	public boolean close() {
-		// TODO Auto-generated method stub
-		return false;
+		selected = 0;
+		for (TableRow row : map) {
+			row.doKeyInput();
+			row.doValueInput();
+		}
+		
+		if (!dirty)
+			return true;
+		
+		int ret = JOptionPane.showConfirmDialog(gui, "Would you like to save your changes to the map?", "Unsaved Changes", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		
+		if (ret == JOptionPane.CANCEL_OPTION)
+			return false;
+		
+		if (ret == JOptionPane.YES_OPTION) {
+			submit(false);
+		}
+		
+		return true;
 	}
 
 	@Override
@@ -221,7 +253,7 @@ public class MapEditor<K, V> implements EditorWindow {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				submit();
+				submit(true);
 			}
 		});
 		menu.add(button);
@@ -378,8 +410,12 @@ public class MapEditor<K, V> implements EditorWindow {
 		selected--;
 	}
 	
-	private void submit() {
+	private void submit(boolean closeWindow) {
+		sendback.updateMap(key, asMap());
 		
+		dirty = false;
+		if (closeWindow)
+			Driver.driver.getEditor().closeWindow(this);
 	}
 	
 	private void selected(TableRow row) {

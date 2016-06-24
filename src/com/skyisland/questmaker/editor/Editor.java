@@ -10,8 +10,6 @@ import javax.swing.JScrollPane;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
-import com.skyisland.questmaker.actions.ExitAction;
-
 public class Editor {
 
 	private Map<EditorWindow, JInternalFrame> openWindows;
@@ -47,11 +45,12 @@ public class Editor {
 		frame.setResizable(true);
 		frame.setPreferredSize(windowSize);
 		frame.pack();
+		frame.setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
 		frame.addInternalFrameListener(new InternalFrameListener() {
 			
 			@Override
 			public void internalFrameClosed(InternalFrameEvent e) {
-				closeWindow(window);
+				;
 			}
 
 			@Override
@@ -62,8 +61,7 @@ public class Editor {
 
 			@Override
 			public void internalFrameClosing(InternalFrameEvent e) {
-				// TODO Auto-generated method stub
-				
+				closeWindow(window);
 			}
 
 			@Override
@@ -105,8 +103,9 @@ public class Editor {
 		JInternalFrame frame = openWindows.remove(window);
 		if (frame != null)
 			pane.remove(frame);
-		
-		pane.validate();
+
+		pane.revalidate();
+		pane.repaint();
 		
 		return true;
 	}
@@ -124,7 +123,8 @@ public class Editor {
 				pane.remove(frame);
 		}
 		
-		pane.validate();
+		pane.revalidate();
+		pane.repaint();
 		return true;
 	}
 }

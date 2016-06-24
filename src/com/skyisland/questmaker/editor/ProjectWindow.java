@@ -38,7 +38,9 @@ import com.skyisland.questmanager.configuration.PluginConfiguration;
 import com.skyisland.questmanager.configuration.PluginConfiguration.PluginConfigurationKey;
 import com.skyisland.questmanager.configuration.utils.YamlWriter;
 
-public class ProjectWindow implements EditorWindow {
+public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Double> {
+	
+	public static final int MUSIC_DURATION_KEY = 0x443;
 	
 	private static Set<PluginConfiguration.PluginConfigurationKey> ignoreKeys = new HashSet<>();
 	
@@ -318,14 +320,17 @@ public class ProjectWindow implements EditorWindow {
 //			MapEditor edit = new MapEditor(config, key, "Project", (Map<>))
 //		}
 		if (key == PluginConfigurationKey.MUSICDURATIONS) {
-			Map<Sound, Double> map = config.getMusicDurations();
+			
+			
+			final ProjectWindow caller = this;
 			
 			JButton button = new JButton("Edit");
 			button.addActionListener(new ActionListener() {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					MapEditor.showEditor(config, key, "Project", map,
+					Map<Sound, Double> map = config.getMusicDurations();
+					MapEditor.showEditor(MUSIC_DURATION_KEY, caller, "Music Durations", map,
 							SoundParser.instance(), DoubleParser.instance());
 				}
 				
@@ -349,5 +354,14 @@ public class ProjectWindow implements EditorWindow {
 		
 		
 		return field;
+	}
+
+	@Override
+	public void updateMap(int id, Map<Sound, Double> result) {
+		if (id == MUSIC_DURATION_KEY) {
+			System.out.println("setting as " + result);
+			config.setMusicDurations(result);
+		}
+		
 	}
 }
