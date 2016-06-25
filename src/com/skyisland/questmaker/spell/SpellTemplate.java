@@ -4,18 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.skyisland.questmaker.Driver;
+import com.skyisland.questmaker.editor.SpellWindow;
 import com.skyisland.questmaker.explorer.ExplorerItem;
 import com.skyisland.questmaker.project.ProjectResource;
+import com.skyisland.questmanager.magic.spell.Spell;
 
 public class SpellTemplate implements ProjectResource, ExplorerItem {
 	
 	private String name;
 	
-	private String description;
-	
-	private int difficulty;
-	
-	private int cost;
+	private Spell spell;
 	
 	public SpellTemplate(String name) {
 		this.name = name;
@@ -34,24 +33,34 @@ public class SpellTemplate implements ProjectResource, ExplorerItem {
 
 	@Override
 	public boolean canExpand() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public List<ExplorerItem> getChildren() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void open() {
-		// TODO Auto-generated method stub
-		
+		SpellWindow window = new SpellWindow(this, spell);
+		Driver.driver.getEditor().openWindow(window);
 	}
 	
 	public String getName() {
 		return name;
+	}
+
+	public Spell getSpell() {
+		return spell;
+	}
+
+	public void setSpell(Spell spell) {
+		this.spell = spell;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 }

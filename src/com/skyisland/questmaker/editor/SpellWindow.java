@@ -1,11 +1,17 @@
 package com.skyisland.questmaker.editor;
 
 import java.awt.Component;
+import java.util.EnumMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SpringLayout;
 
-import com.skyisland.questmaker.project.Project;
 import com.skyisland.questmaker.spell.SpellEffectWindow;
 import com.skyisland.questmaker.spell.SpellTemplate;
 import com.skyisland.questmaker.swingutils.Theme;
@@ -40,6 +46,15 @@ public class SpellWindow implements EditorWindow, Themed {
 		}
 	}
 	
+	private static enum Param {
+		NAME,
+		DESC,
+		DIFFICULTY,
+		COST,
+		SPEED,
+		RANGE;
+	}
+	
 	private static class EffectHolder {
 		
 		private SpellEffectWindow effect;
@@ -53,30 +68,32 @@ public class SpellWindow implements EditorWindow, Themed {
 	
 	private JPanel gui;
 	
-	private String name;
-	
 	private Spell spell;
 	
 	private boolean dirty;
 	
 	private List<EffectHolder> effects;
 	
+	private Map<Param, Component> fields;
+	
 	private SpellWindow() {
 		dirty = false;
+		this.effects = new LinkedList<>();
+		fields = new EnumMap<>(Param.class);
 		gui = new JPanel();
 	}
 	
 	public SpellWindow(SpellTemplate template, String name, SpellType type) {
 		this();
 		this.template = template;
-		this.name = name;
+		this.spell = type.getBase();
+		this.spell.setName(name);
 		setupGui(type);
 	}
 	
 	public SpellWindow(SpellTemplate template, Spell spell) {
 		this();
 		this.template = template;
-		this.name = spell.getName();
 		this.spell = spell;
 		
 		SpellType type = resolveType(spell);
@@ -85,7 +102,7 @@ public class SpellWindow implements EditorWindow, Themed {
 
 	@Override
 	public String getWindowTitle() {
-		return "Spell: " + name;
+		return "Spell: " + spell.getName();
 	}
 
 	@Override
@@ -102,10 +119,90 @@ public class SpellWindow implements EditorWindow, Themed {
 	private void setupGui(SpellType type) {
 		gui.setBackground(Theme.BACKGROUND_EDITWINDOW.register(this));
 		gui.setForeground(Theme.TEXT_EDITWINDOW.register(this));
+		SpringLayout lay = new SpringLayout();
+		gui.setLayout(lay);
 		
-		//TODO
+		
+		JLabel label;
+		JTextField field, swap;
+		label = label("Name");
+		gui.add(label);
+		lay.putConstraint(SpringLayout.WEST, label, 20, SpringLayout.WEST, gui);
+		lay.putConstraint(SpringLayout.NORTH, label, 20, SpringLayout.NORTH, gui);
+		field = new JTextField(spell.getName(), 10);
+		gui.add(field);
+		fields.put(Param.NAME, field);
+		lay.putConstraint(SpringLayout.WEST, field, 0, SpringLayout.WEST, label);
+		lay.putConstraint(SpringLayout.NORTH, field, 3, SpringLayout.SOUTH, label);
+		
+		swap = new JTextField(spell.getDescription(), 40);
+		gui.add(swap);
+		lay.putConstraint(SpringLayout.WEST, swap, 10, SpringLayout.EAST, field);
+		lay.putConstraint(SpringLayout.NORTH, swap, 0, SpringLayout.NORTH, field);
+		fields.put(Param.DESC, swap);
+		label = label("Description");
+		gui.add(label);
+		lay.putConstraint(SpringLayout.SOUTH, label, -3, SpringLayout.NORTH, swap);
+		lay.putConstraint(SpringLayout.WEST, label, 0, SpringLayout.WEST, swap);
+		
+		lay.putConstraint(SpringLayout.EAST, gui, 20, SpringLayout.EAST, swap);
+		
+		//next line; Difficulty, cost
+		label = label("Difficulty");
+		gui.add(label);
+		lay.putConstraint(SpringLayout.NORTH, label, 10, SpringLayout.SOUTH, field);
+		lay.putConstraint(SpringLayout.WEST, label, 0, SpringLayout.WEST, field);
+		
+		field = new JFormattedTextField(spell.getDifficulty());
+		field.setColumns(5);
+		gui.add(field);
+		fields.put(Param.DIFFICULTY, field);
+		lay.putConstraint(SpringLayout.NORTH, field, 3, SpringLayout.SOUTH, label);
+		lay.putConstraint(SpringLayout.WEST, field, 0, SpringLayout.WEST, label);
+		
+		swap = new JFormattedTextField(spell.getCost());
+		swap.setColumns(5);
+		gui.add(swap);
+		fields.put(Param.COST, swap);
+		lay.putConstraint(SpringLayout.WEST, swap, 10, SpringLayout.EAST, field);
+		lay.putConstraint(SpringLayout.NORTH, swap, 0, SpringLayout.NORTH, field);
+		label = label("Cost");
+		gui.add(label);
+		lay.putConstraint(SpringLayout.SOUTH, label, -3, SpringLayout.NORTH, swap);
+		lay.putConstraint(SpringLayout.WEST, label, 0, SpringLayout.WEST, swap);
+		
+		if (type == SpellType.SIMPLETARGETSPELL) {
+			SimpleTargetSpell tspell = (SimpleTargetSpell) spell;
+			field = new JFormattedTextField(tspell.getMaxDistance());
+			field.setColumns(5);
+			gui.add(field);
+			fields.put(Param.RANGE, field);
+			lay.putConstraint(SpringLayout.SOUTH, field, 0, SpringLayout.SOUTH, swap);
+			lay.putConstraint(SpringLayout.WEST, field, 10, SpringLayout.EAST, swap);
+			label = label("Range");
+			gui.add(label);
+			lay.putConstraint(SpringLayout.SOUTH, label, -3, SpringLayout.NORTH, field);
+			lay.putConstraint(SpringLayout.WEST, label, 0, SpringLayout.WEST, field);
+
+			swap = new JFormattedTextField(tspell.getSpeed());
+			swap.setColumns(5);
+			gui.add(swap);
+			fields.put(Param.RANGE, swap);
+			lay.putConstraint(SpringLayout.SOUTH, swap, 0, SpringLayout.SOUTH, field);
+			lay.putConstraint(SpringLayout.WEST, swap, 10, SpringLayout.EAST, field);
+			label = label("Speed");
+			gui.add(label);
+			lay.putConstraint(SpringLayout.SOUTH, label, -3, SpringLayout.NORTH, swap);
+			lay.putConstraint(SpringLayout.WEST, label, 0, SpringLayout.WEST, swap);
+		}
 		
 		gui.validate();
+	}
+	
+	private JLabel label(String label) {
+		JLabel lab = new JLabel(label);
+		lab.setForeground(Theme.TEXT_EDITWINDOW.get());
+		return lab;
 	}
 
 	public Spell buildSpell() {
