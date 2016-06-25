@@ -99,8 +99,10 @@ public class MapEditor<K, V> implements EditorWindow {
 			K temp = keyParser.parse(text), old = key;
 			if (temp != null)
 				key = temp;
-			
-			if (!old.equals(key)) {
+
+			if (old != null && key != null)
+			if ((old == null && key != null) || (old != null && key == null)
+					|| !old.equals(key)) {
 				Driver.driver.getEditor().dirty(window, true);
 				dirty = true;
 			}
@@ -118,7 +120,9 @@ public class MapEditor<K, V> implements EditorWindow {
 			if (temp != null)
 				value = temp;
 			
-			if (!old.equals(key)) {
+			if (old != null && value != null)
+			if ((old == null && value != null) || (old != null && value == null)
+					|| !old.equals(value)) {
 				Driver.driver.getEditor().dirty(window, true);
 				dirty = true;
 			}
@@ -390,6 +394,9 @@ public class MapEditor<K, V> implements EditorWindow {
 	}
 	
 	private void deleteRow() {
+		if (map.isEmpty())
+			return;
+		
 		TableRow last, cur;
 		ListIterator<TableRow> it = map.listIterator(selected);
 		last = it.next();
@@ -400,6 +407,10 @@ public class MapEditor<K, V> implements EditorWindow {
 		}
 		
 		TableRow row = map.get(map.size() - 1);
+		if (row.key != null && !row.key.toString().isEmpty()) {
+			Driver.driver.getEditor().dirty(window, true);
+			dirty = true;
+		}
 		//cells.remove(cells.getComponentCount() - 1);
 		//cells.remove(cells.getComponentCount() - 1);
 		SpringLayout lay = (SpringLayout) cells.getLayout();
@@ -411,7 +422,7 @@ public class MapEditor<K, V> implements EditorWindow {
 		
 		cells.revalidate();
 		cells.repaint();
-		selected--;
+		selected = Math.max(0, Math.min(map.size() - 1, selected));
 	}
 	
 	private void submit(boolean closeWindow) {

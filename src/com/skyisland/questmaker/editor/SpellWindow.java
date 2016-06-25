@@ -55,6 +55,7 @@ public class SpellWindow implements EditorWindow, MapEditReceiver<Sound, Double>
 		this.project = project;
 		this.name = name;
 		this.spell = null;
+		dirty = false;
 		gui = new JPanel();
 		setupGui();
 	}

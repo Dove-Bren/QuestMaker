@@ -120,7 +120,9 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 			//just store string 
 			Object old = window.config.getBaseValue(key);
 			window.config.setBaseValue(key, value);
-			if (!old.equals(value))
+			if (old != null && value != null)
+			if ((old == null && value != null) || (old != null && value == null)
+					|| !old.equals(value))
 				window.project.dirty();
 		}
 	}
@@ -151,7 +153,9 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 			Object old = window.config.getBaseValue(key);
 			window.config.setBaseValue(key, fieldName);
 
-			if (!old.equals(fieldName))
+			if (old != null && fieldName != null)
+			if ((old == null && fieldName != null) || (old != null && fieldName == null)
+					|| !old.equals(fieldName))
 				window.project.dirty();
 		}
 		
