@@ -30,6 +30,7 @@ import com.skyisland.questmaker.configutils.ShallowItemMeta;
 import com.skyisland.questmaker.configutils.ShallowItemStack;
 import com.skyisland.questmaker.configutils.ShallowPotionEffectType;
 import com.skyisland.questmaker.editor.Editor;
+import com.skyisland.questmaker.editor.spell.SpellWindow;
 import com.skyisland.questmaker.explorer.ProjectExplorer;
 import com.skyisland.questmaker.npc.BankNPC;
 import com.skyisland.questmaker.npc.DummyNPC;
@@ -229,6 +230,7 @@ public class Driver {
 	}
 	
 	public Driver() {
+		SpellWindow.init();
 		initGui();
 		openProject = null;
 	}

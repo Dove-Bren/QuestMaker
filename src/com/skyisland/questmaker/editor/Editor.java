@@ -94,6 +94,7 @@ public class Editor implements Themed {
 		});
 		openWindows.put(window, frame);
 		pane.add(frame);
+		frame.toFront();
 	}
 	
 	public boolean closeWindow(EditorWindow window) {

@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.skyisland.questmaker.Driver;
-import com.skyisland.questmaker.editor.SpellWindow;
+import com.skyisland.questmaker.editor.spell.SpellWindow;
 import com.skyisland.questmaker.explorer.ExplorerItem;
 import com.skyisland.questmaker.project.ProjectResource;
 import com.skyisland.questmanager.magic.spell.Spell;
@@ -43,7 +43,7 @@ public class SpellTemplate implements ProjectResource, ExplorerItem {
 
 	@Override
 	public void open() {
-		SpellWindow window = new SpellWindow(this, spell);
+		SpellWindow window = SpellWindow.getWindow(this, spell);
 		Driver.driver.getEditor().openWindow(window);
 	}
 	

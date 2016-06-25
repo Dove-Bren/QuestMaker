@@ -18,8 +18,8 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
 import com.skyisland.questmaker.Driver;
-import com.skyisland.questmaker.editor.SpellWindow;
-import com.skyisland.questmaker.editor.SpellWindow.SpellType;
+import com.skyisland.questmaker.editor.spell.SpellWindow;
+import com.skyisland.questmaker.editor.spell.SpellWindow.SpellType;
 import com.skyisland.questmaker.project.Project;
 import com.skyisland.questmaker.spell.SpellTemplate;
 import com.skyisland.questmaker.swingutils.Theme;
@@ -80,7 +80,7 @@ public class CreateSpellAction extends AbstractAction {
 		panel.add(label);
 		lay.putConstraint(SpringLayout.WEST, label, 20, SpringLayout.WEST, panel);
 		lay.putConstraint(SpringLayout.NORTH, label, 20, SpringLayout.SOUTH, field);
-		typeField = new JComboBox<SpellType>(SpellType.values()); field = typeField;
+		typeField = new JComboBox<SpellType>(SpellWindow.getRegisteredTypes().toArray(new SpellType[0])); field = typeField;
 		panel.add(field);
 		lay.putConstraint(SpringLayout.NORTH, field, 3, SpringLayout.SOUTH, label);
 		lay.putConstraint(SpringLayout.WEST, field, 0, SpringLayout.WEST, label);
@@ -141,7 +141,7 @@ public class CreateSpellAction extends AbstractAction {
 		}
 		
 		SpellTemplate template = new SpellTemplate(name);
-		SpellWindow window = new SpellWindow(template, name, type);
+		SpellWindow window = type.buildWindow(template);
 		proj.addSpell(template);
 		Driver.driver.getEditor().openWindow(window, new Dimension(625, 400));
 	}
