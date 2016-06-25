@@ -1,47 +1,55 @@
 package com.skyisland.questmaker.editor;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import javax.swing.AbstractAction;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-import javax.swing.Spring;
-import javax.swing.SpringLayout;
-
-import org.bukkit.Material;
-import org.bukkit.Sound;
 
 import com.skyisland.questmaker.project.Project;
-import com.skyisland.questmaker.swingutils.DoubleParser;
-import com.skyisland.questmaker.swingutils.SoundParser;
-import com.skyisland.questmanager.configuration.AlterablePluginConfiguration;
-import com.skyisland.questmanager.configuration.PluginConfiguration;
-import com.skyisland.questmanager.configuration.PluginConfiguration.PluginConfigurationKey;
-import com.skyisland.questmanager.configuration.utils.YamlWriter;
+import com.skyisland.questmaker.spell.SpellEffectWindow;
+import com.skyisland.questmaker.spell.SpellTemplate;
+import com.skyisland.questmaker.swingutils.Theme;
+import com.skyisland.questmaker.swingutils.Theme.Themed;
+import com.skyisland.questmanager.magic.spell.SimpleSelfSpell;
+import com.skyisland.questmanager.magic.spell.SimpleTargetSpell;
 import com.skyisland.questmanager.magic.spell.Spell;
 
-public class SpellWindow implements EditorWindow, MapEditReceiver<Sound, Double> {
+public class SpellWindow implements EditorWindow, Themed {
 	
-	private Project project;
+	public enum SpellType {
+		SIMPLESELFSPELL("Simple Self Spell", new SimpleSelfSpell(0, 0, "", "")),
+		SIMPLETARGETSPELL("Simple Target Spell", new SimpleTargetSpell(0, 0, "", "", 0.0, 0));
+		
+		
+		private Spell base;
+		
+		private String title;
+		
+		private SpellType(String title, Spell base) {
+			this.title = title;
+			this.base = base;
+		}
+		
+		private Spell getBase() {
+			return base;
+		}
+		
+		@Override
+		public String toString() {
+			return title;
+		}
+	}
+	
+	private static class EffectHolder {
+		
+		private SpellEffectWindow effect;
+		
+		public EffectHolder(SpellEffectWindow effect) {
+			this.effect = effect;
+		}
+	}
+	
+	private SpellTemplate template;
 	
 	private JPanel gui;
 	
@@ -51,18 +59,28 @@ public class SpellWindow implements EditorWindow, MapEditReceiver<Sound, Double>
 	
 	private boolean dirty;
 	
-	public SpellWindow(Project project, String name) {
-		this.project = project;
-		this.name = name;
-		this.spell = null;
+	private List<EffectHolder> effects;
+	
+	private SpellWindow() {
 		dirty = false;
 		gui = new JPanel();
-		setupGui();
 	}
 	
-	public SpellWindow(Project project, Spell spell) {
-		this(project, spell.getName());
+	public SpellWindow(SpellTemplate template, String name, SpellType type) {
+		this();
+		this.template = template;
+		this.name = name;
+		setupGui(type);
+	}
+	
+	public SpellWindow(SpellTemplate template, Spell spell) {
+		this();
+		this.template = template;
+		this.name = spell.getName();
 		this.spell = spell;
+		
+		SpellType type = resolveType(spell);
+		setupGui(type);
 	}
 
 	@Override
@@ -81,179 +99,40 @@ public class SpellWindow implements EditorWindow, MapEditReceiver<Sound, Double>
 		return gui;
 	}
 	
-	private void setupGui() {
-		gui.setBackground(Color.DARK_GRAY);
+	private void setupGui(SpellType type) {
+		gui.setBackground(Theme.BACKGROUND_EDITWINDOW.register(this));
+		gui.setForeground(Theme.TEXT_EDITWINDOW.register(this));
 		
-		SpringLayout lay = new SpringLayout();
-		gui.setLayout(lay);
-		
-		JLabel cache;
-//		cache = new JLabel("Quest Editor");
-//		cache.setFon
-//		gui.add(cache);
-//		lay.putConstraint(SpringLayout.WEST, cache, Spring.constant(20, 40, 60), SpringLayout.EAST, gui);
-		
-		//gui.setPreferredSize(new Dimension(250, 500));
-		Component comp, last = null;
-		boolean empty;
-		List<Component> fields = new ArrayList<>(PluginConfiguration.PluginConfigurationKey.values().length);
-		Component longestField = null;
-		int longest = 0;
-		for (PluginConfiguration.Category category : PluginConfiguration.Category.values()) {
-			empty = true;
-		
-			for (PluginConfiguration.PluginConfigurationKey field : PluginConfiguration.PluginConfigurationKey.values()) {
-				if (category != field.getCaterogy())
-					continue;
-				if (ignoreKeys.contains(field))
-					continue;
-				
-				if (empty) {
-					//first one in this category. create a label
-					comp = new JLabel(category.getName());
-					comp.setFont(new Font("Helvetica", Font.PLAIN, 14));
-					comp.setForeground(Color.RED);
-					gui.add(comp);
-					lay.putConstraint(SpringLayout.WEST, comp, 10, SpringLayout.WEST, gui);
-					lay.putConstraint(SpringLayout.NORTH, comp, 20, SpringLayout.NORTH, gui);
-					
-					if (last == null) {
-						;
-					} else {
-						lay.putConstraint(SpringLayout.NORTH, comp, Spring.constant(10), SpringLayout.SOUTH, last);
-						//lay.putConstraint(SpringLayout.WEST, comp, 0, SpringLayout.WEST, last);
-					}
-					
-					last = comp;
-					empty = false;
-				}
-				cache = new JLabel(field.getName(), JLabel.TRAILING);
-				cache.setForeground(Color.WHITE);
-				comp = createField(field);
-				cache.setLabelFor(comp);
-				cache.setToolTipText(field.getDescription());
-				gui.add(cache);
-				gui.add(comp);
-				lay.putConstraint(SpringLayout.WEST, comp, Spring.constant(10, 20, 20), SpringLayout.EAST, cache);
-				lay.putConstraint(SpringLayout.VERTICAL_CENTER, cache, Spring.constant(0, 0, 0), SpringLayout.VERTICAL_CENTER, comp);
-				lay.putConstraint(SpringLayout.WEST, cache, 20, SpringLayout.WEST, gui);
-				if (last != null) {
-					lay.putConstraint(SpringLayout.NORTH, comp, Spring.constant(10), SpringLayout.SOUTH, last);
-				}
-				last = comp;
-				
-				if (longestField == null) {
-					longestField = comp;
-					longest = field.getName().length();
-				} else if (longest < field.getName().length()) {
-					longestField = comp;
-					longest = field.getName().length();
-				}
-				
-				fields.add(comp);
-			}
-		}
-		
-		for (Component component : fields) {
-			if (component == longestField) {
-				continue; //equals okay cause it will be a reference?
-			}
-			
-			lay.putConstraint(SpringLayout.WEST, component, 0, SpringLayout.WEST, longestField);
-		}
-		
-		
-		lay.putConstraint(SpringLayout.SOUTH, gui, 20, SpringLayout.SOUTH, last);
+		//TODO
 		
 		gui.validate();
-		//SwingUtilities.gr;
 	}
-	
-	private Component createField(PluginConfiguration.PluginConfigurationKey key) {
-		if (key == PluginConfigurationKey.ALTERTYPE || key == PluginConfigurationKey.COMPASSTYPE
-				|| key == PluginConfigurationKey.INVOKERTYPE) {
-			JComboBox<String> comp = new JComboBox<>(new DefaultComboBoxModel<String>());
-			List<String> list = getMaterialList();
-			
-			for (String e : list)
-				comp.addItem(e);
-			
-			comp.setSelectedItem(YamlWriter.toStandardFormat(config.getBaseValue(key).toString()));
-			comp.addActionListener(new MaterialFieldHolder(this, key, comp));
-			
-			return comp;
-		}
-		
-		if (key.getDef() instanceof Boolean) {
-			ButtonGroup group = new ButtonGroup();
-			JPanel buttonPanel = new JPanel();
-			buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-			
-			boolean on = (Boolean) config.getBaseValue(key);
-			
-			JRadioButton button;
-			button = new JRadioButton("true", on);
-			button.setBackground(Color.DARK_GRAY);
-			button.setForeground(Color.WHITE);
-			button.addActionListener(new BooleanFieldHolder(this, key, button));
-			group.add(button);
-			buttonPanel.add(button);
-			button = new JRadioButton("false", !on);
-			button.setBackground(Color.DARK_GRAY);
-			button.setForeground(Color.WHITE);
-			button.addActionListener(new BooleanFieldHolder(this, key, button));
-			group.add(button);
-			buttonPanel.add(button);
-			
-			return buttonPanel;
-		}
-		
-//		if (key.getDef() instanceof Map) {
-//			MapEditor edit = new MapEditor(config, key, "Project", (Map<>))
-//		}
-		if (key == PluginConfigurationKey.MUSICDURATIONS) {
-			
-			
-			final SpellWindow caller = this;
-			
-			JButton button = new JButton("Edit");
-			button.addActionListener(new ActionListener() {
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					Map<Sound, Double> map = config.getMusicDurations();
-					MapEditor.showEditor(MUSIC_DURATION_KEY, caller, "Music Durations", map,
-							SoundParser.instance(), DoubleParser.instance());
-				}
-				
-			});
-			
-			
-			return button;
+	public Spell buildSpell() {
+		if (spell == null)
+			return null;
+		
+		for (EffectHolder window : effects) {
+			spell.addSpellEffect(window.effect.getEffect());
 		}
 		
-		
-		//anything else just do a text field
-		JTextField field = new JTextField(
-				config.getBaseValue(key).toString(), 20
-				);
-		if (key.getDef() instanceof Double) 
-			field.addFocusListener(new TextFieldHolder(this, key, field, TextFieldHolder.Type.DOUBLE));
-		else if (key.getDef() instanceof Integer)
-			field.addFocusListener(new TextFieldHolder(this, key, field, TextFieldHolder.Type.INT));
-		else
-			field.addFocusListener(new TextFieldHolder(this, key, field, TextFieldHolder.Type.OTHER));
-		
-		
-		return field;
+		return spell;
 	}
 
 	@Override
-	public void updateMap(int id, Map<Sound, Double> result) {
-		if (id == MUSIC_DURATION_KEY) {
-			System.out.println("setting as " + result);
-			config.setMusicDurations(result);
-		}
+	public void themeChange(Theme theme) {
+		// TODO Auto-generated method stub
 		
 	}
+	
+	//BREAKS ON UPDATE
+	private SpellType resolveType(Spell spell) {
+		if (spell instanceof SimpleTargetSpell)
+			return SpellType.SIMPLETARGETSPELL;
+		if (spell instanceof SimpleSelfSpell)
+			return SpellType.SIMPLESELFSPELL;
+		
+		return null;
+	}
+	
 }

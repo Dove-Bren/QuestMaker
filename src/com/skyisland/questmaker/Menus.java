@@ -10,6 +10,7 @@ import javax.swing.Action;
 
 import com.skyisland.questmaker.actions.CreateProjectAction;
 import com.skyisland.questmaker.actions.CreateQuestAction;
+import com.skyisland.questmaker.actions.CreateSpellAction;
 import com.skyisland.questmaker.actions.ExitAction;
 import com.skyisland.questmaker.actions.OpenProjectAction;
 import com.skyisland.questmaker.actions.ProjectSettingsAction;
@@ -36,7 +37,9 @@ public class Menus {
 		//Project
 		PROJECT_SETTINGS(DEFAULT_CATS.PROJECT, ProjectSettingsAction.instance(), "Project Settings"),
 		//Quest
-		NEW_QUEST(DEFAULT_CATS.QUEST, CreateQuestAction.instance(), "New Quest")
+		NEW_QUEST(DEFAULT_CATS.QUEST, CreateQuestAction.instance(), "New Quest"),
+		//Spell
+		NEW_SPELL(DEFAULT_CATS.SPELL, CreateSpellAction.instance(), "New Spell")
 		//NPC
 		
 		;
@@ -48,6 +51,7 @@ public class Menus {
 			PROJECT("Project"),
 			QUEST("Quest"),
 			NPC("NPC"),
+			SPELL("Spell"),
 			HELP("Help");
 			
 			private String name;

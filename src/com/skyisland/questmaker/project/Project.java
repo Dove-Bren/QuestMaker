@@ -18,6 +18,7 @@ import com.skyisland.questmaker.configutils.PluginConfigurationWriter;
 import com.skyisland.questmaker.editor.ProjectWindow;
 import com.skyisland.questmaker.explorer.ProjectExplorer;
 import com.skyisland.questmaker.quest.QuestTemplate;
+import com.skyisland.questmaker.spell.SpellTemplate;
 import com.skyisland.questmanager.QuestManagerPlugin;
 import com.skyisland.questmanager.configuration.AlterablePluginConfiguration;
 import com.skyisland.questmanager.configuration.PluginConfiguration;
@@ -59,7 +60,7 @@ public class Project {
 	
 	private List<ResourceRecord<QuestTemplate>> quests;
 	
-	private List<ResourceRecord> spells;
+	private List<ResourceRecord<SpellTemplate>> spells;
 	
 	private List<ResourceRecord> regions;
 	
@@ -111,7 +112,7 @@ public class Project {
 				}
 			}
 
-			for (ResourceRecord record : spells) {
+			for (ResourceRecord<SpellTemplate> record : spells) {
 				if (record.dirty) {
 					record.resource.save(new File(saveFile.getParentFile(), config.getSpellPath()));
 					record.dirty = false;
@@ -269,6 +270,15 @@ public class Project {
 		Driver.driver.getExplorer().addItem(quest, ProjectExplorer.Section.QUEST, index);
 	}
 	
+	public void addSpell(SpellTemplate spell) {
+		dirty();
+		ResourceRecord<SpellTemplate> record = new ResourceRecord<>(spell);
+		spells.add(record);
+		sort();
+		int index = spells.indexOf(record);
+		Driver.driver.getExplorer().addItem(spell, ProjectExplorer.Section.SPELL, index);
+	}
+	
 	public void dirty() {
 		dirty(true);
 	}
@@ -294,6 +304,15 @@ public class Project {
 	public boolean hasQuest(String name) {
 		for (ResourceRecord<QuestTemplate> quest : quests) {
 			if (quest.resource.getValue(QuestConfigurationField.NAME).equals(name))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean hasSpell(String name) {
+		for (ResourceRecord<SpellTemplate> spell : spells) {
+			if (spell.resource.getName().equals(name))
 				return true;
 		}
 		

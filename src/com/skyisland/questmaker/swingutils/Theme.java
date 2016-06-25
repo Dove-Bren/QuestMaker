@@ -8,6 +8,8 @@ public enum Theme {
 	BACKGROUND_BASE(new Color(70, 70, 100)),
 	BACKGROUND_FORWARD(new Color(114, 114, 150)),
 	BACKGROUND_SYSTEM(new Color(130, 135, 150)),
+	BACKGROUND_EDITWINDOW(new Color(40, 45, 40)),
+	TEXT_EDITWINDOW(new Color(255, 255, 230)),
 	TEXT_BASE(Color.WHITE),
 	TEXT_FORWARD(new Color(255, 255, 230));
 	
