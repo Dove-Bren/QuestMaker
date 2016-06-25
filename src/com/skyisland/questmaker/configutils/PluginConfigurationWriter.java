@@ -2,16 +2,17 @@ package com.skyisland.questmaker.configutils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-
-import org.bukkit.Sound;
-import org.bukkit.configuration.file.YamlConfiguration;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.skyisland.questmanager.configuration.PluginConfiguration;
 import com.skyisland.questmanager.configuration.PluginConfiguration.PluginConfigurationKey;
+import com.skyisland.questmanager.configuration.utils.YamlWriter;
 
-public class PluginConfigurationWriter {
+public final class PluginConfigurationWriter {
 
+	public static final int LINE_LENGTH = 50;
+	
 	/**
 	 * Saves the given Configuration to the provided File.
 	 * <p>
@@ -23,58 +24,93 @@ public class PluginConfigurationWriter {
 	 * @throws IOException 
 	 */
 	public static void saveConfig(PluginConfiguration config, File saveFile) throws IOException {
-		YamlConfiguration yaml = new YamlConfiguration();
+		YamlWriter writer = new YamlWriter();
 		
-		yaml.set(PluginConfigurationKey.VERSION.getKey(), config.getVersion());
-		yaml.set(PluginConfigurationKey.CONSERVATIVE.getKey(), config.getConservative());
-		yaml.set(PluginConfigurationKey.VERBOSEMENUS.getKey(), config.getMenuVerbose());
-		yaml.set(PluginConfigurationKey.ALLOWCRAFTING.getKey(), config.getAllowCrafting());
-		yaml.set(PluginConfigurationKey.ALLOWNAMING.getKey(), config.getAllowNaming());
-		yaml.set(PluginConfigurationKey.ALLOWTAMING.getKey(), config.getAllowTaming());
-		yaml.set(PluginConfigurationKey.PARTYSIZE.getKey(), config.getMaxPartySize());
-		yaml.set(PluginConfigurationKey.CLEANUPVILLAGERS.getKey(), config.getVillagerCleanup());
-		yaml.set(PluginConfigurationKey.XPMONEY.getKey(), config.getXPMoney());
-		yaml.set(PluginConfigurationKey.PORTALS.getKey(), config.getUsePortals());
-		yaml.set(PluginConfigurationKey.ADJUSTXP.getKey(), config.getAdjustXP());
-		yaml.set(PluginConfigurationKey.TITLECHAT.getKey(), config.getChatTitle());
-		yaml.set(PluginConfigurationKey.COMPASS.getKey(), config.getCompassEnabled());
-		yaml.set(PluginConfigurationKey.COMPASSTYPE.getKey(), config.getCompassType().name());
-		yaml.set(PluginConfigurationKey.COMPASSNAME.getKey(), config.getCompassName());
-		yaml.set(PluginConfigurationKey.ALLOWMAGIC.getKey(), config.getMagicEnabled());
-		yaml.set(PluginConfigurationKey.MANADEFAULT.getKey(), config.getStartingMana());
-		yaml.set(PluginConfigurationKey.DAYREGEN.getKey(), config.getMagicRegenDay());
-		yaml.set(PluginConfigurationKey.NIGHTREGEN.getKey(), config.getMagicRegenNight());
-		yaml.set(PluginConfigurationKey.OUTSIDEREGEN.getKey(), config.getMagicRegenOutside());
-		yaml.set(PluginConfigurationKey.KILLREGEN.getKey(), config.getMagicRegenKill());
-		yaml.set(PluginConfigurationKey.XPREGEN.getKey(), config.getMagicRegenXP());
-		yaml.set(PluginConfigurationKey.FOODREGEN.getKey(), config.getMagicRegenFood());
-		yaml.set(PluginConfigurationKey.HOLDERNAME.getKey(), config.getSpellHolderName());
-		yaml.set(PluginConfigurationKey.ALLOWWEAVING.getKey(), config.getAllowSpellWeaving());
-		yaml.set(PluginConfigurationKey.USEINVOKER.getKey(), config.getUseWeavingInvoker());
-		yaml.set(PluginConfigurationKey.INVOKERNAME.getKey(), config.getSpellInvokerName());
-		yaml.set(PluginConfigurationKey.INVOKERTYPE.getKey(), config.getInvokerType().name());
-		yaml.set(PluginConfigurationKey.ALTERTYPE.getKey(), config.getAlterType().name());
-		yaml.set(PluginConfigurationKey.WORLDS.getKey(), config.getWorlds());
-		yaml.set(PluginConfigurationKey.QUESTDIR.getKey(), config.getQuestPath());
-		yaml.set(PluginConfigurationKey.SAVEDIR.getKey(), config.getSavePath());
-		yaml.set(PluginConfigurationKey.REGIONDIR.getKey(), config.getRegionPath());
-		yaml.set(PluginConfigurationKey.SPELLDIR.getKey(), config.getSpellPath());
-		yaml.set(PluginConfigurationKey.SKILLDIR.getKey(), config.getSkillPath());
-		yaml.set(PluginConfigurationKey.SKILLCAP.getKey(), config.getSkillCap());
-		yaml.set(PluginConfigurationKey.SKILLSUCCESSGROWTH.getKey(), config.getSkillGrowthOnSuccess());
-		yaml.set(PluginConfigurationKey.SKILLFAILGROWTH.getKey(), config.getSkillGrowthOnFail());
-		yaml.set(PluginConfigurationKey.SKILLGROWTHCUTOFF.getKey(), config.getSkillCutoff());
-		yaml.set(PluginConfigurationKey.SKILLGROWTHUPPERCUTOFF.getKey(), config.getSkillUpperCutoff());
-		yaml.set(PluginConfigurationKey.SUMMONLIMIT.getKey(), config.getSummonLimit());
+		add(writer, PluginConfigurationKey.VERSION, config.getVersion());
+		add(writer, PluginConfigurationKey.CONSERVATIVE, config.getConservative());
+		add(writer, PluginConfigurationKey.VERBOSEMENUS, config.getMenuVerbose());
+		add(writer, PluginConfigurationKey.ALLOWCRAFTING, config.getAllowCrafting());
+		add(writer, PluginConfigurationKey.ALLOWNAMING, config.getAllowNaming());
+		add(writer, PluginConfigurationKey.ALLOWTAMING, config.getAllowTaming());
+		add(writer, PluginConfigurationKey.PARTYSIZE, config.getMaxPartySize());
+		add(writer, PluginConfigurationKey.CLEANUPVILLAGERS, config.getVillagerCleanup());
+		add(writer, PluginConfigurationKey.XPMONEY, config.getXPMoney());
+		add(writer, PluginConfigurationKey.PORTALS, config.getUsePortals());
+		add(writer, PluginConfigurationKey.ADJUSTXP, config.getAdjustXP());
+		add(writer, PluginConfigurationKey.TITLECHAT, config.getChatTitle());
+		add(writer, PluginConfigurationKey.COMPASS, config.getCompassEnabled());
+		add(writer, PluginConfigurationKey.COMPASSTYPE, config.getCompassType().name());
+		add(writer, PluginConfigurationKey.COMPASSNAME, config.getCompassName());
+		add(writer, PluginConfigurationKey.ALLOWMAGIC, config.getMagicEnabled());
+		add(writer, PluginConfigurationKey.MANADEFAULT, config.getStartingMana());
+		add(writer, PluginConfigurationKey.DAYREGEN, config.getMagicRegenDay());
+		add(writer, PluginConfigurationKey.NIGHTREGEN, config.getMagicRegenNight());
+		add(writer, PluginConfigurationKey.OUTSIDEREGEN, config.getMagicRegenOutside());
+		add(writer, PluginConfigurationKey.KILLREGEN, config.getMagicRegenKill());
+		add(writer, PluginConfigurationKey.XPREGEN, config.getMagicRegenXP());
+		add(writer, PluginConfigurationKey.FOODREGEN, config.getMagicRegenFood());
+		add(writer, PluginConfigurationKey.HOLDERNAME, config.getSpellHolderName());
+		add(writer, PluginConfigurationKey.ALLOWWEAVING, config.getAllowSpellWeaving());
+		add(writer, PluginConfigurationKey.USEINVOKER, config.getUseWeavingInvoker());
+		add(writer, PluginConfigurationKey.INVOKERNAME, config.getSpellInvokerName());
+		add(writer, PluginConfigurationKey.INVOKERTYPE, config.getInvokerType().name());
+		add(writer, PluginConfigurationKey.ALTERTYPE, config.getAlterType().name());
+		add(writer, PluginConfigurationKey.WORLDS, config.getWorlds());
+		add(writer, PluginConfigurationKey.QUESTDIR, config.getQuestPath());
+		add(writer, PluginConfigurationKey.SAVEDIR, config.getSavePath());
+		add(writer, PluginConfigurationKey.REGIONDIR, config.getRegionPath());
+		add(writer, PluginConfigurationKey.SPELLDIR, config.getSpellPath());
+		add(writer, PluginConfigurationKey.SKILLDIR, config.getSkillPath());
+		add(writer, PluginConfigurationKey.SKILLCAP, config.getSkillCap());
+		add(writer, PluginConfigurationKey.SKILLSUCCESSGROWTH, config.getSkillGrowthOnSuccess());
+		add(writer, PluginConfigurationKey.SKILLFAILGROWTH, config.getSkillGrowthOnFail());
+		add(writer, PluginConfigurationKey.SKILLGROWTHCUTOFF, config.getSkillCutoff());
+		add(writer, PluginConfigurationKey.SKILLGROWTHUPPERCUTOFF, config.getSkillUpperCutoff());
+		add(writer, PluginConfigurationKey.SUMMONLIMIT, config.getSummonLimit());
 		
-		//yaml.set(PluginConfigurationKey.MUSICDURATIONS.getKey(), config.getMusicDurations());
-		Map<Sound, Double> durations = config.getMusicDurations();
-		String cachekey = PluginConfigurationKey.MUSICDURATIONS.getKey();
-		for (Sound key : durations.keySet()) {
-			yaml.set(cachekey + "." + key.name(), durations.get(key));
+		add(writer, PluginConfigurationKey.MUSICDURATIONS, config.getMusicDurations());
+//		Map<Sound, Double> durations = config.getMusicDurations();
+//		String cachekey = PluginConfigurationKey.MUSICDURATIONS;
+//		for (Sound key : durations.keySet()) {
+//			yaml.set(cachekey + "." + key.name(), durations.get(key));
+//		}
+		
+		try {
+			writer.save(saveFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void add(YamlWriter writer, PluginConfigurationKey key, Object value) {
+		writer.addLine(key.getKey(), value, makeList(key.getDescription()));
+	}
+	
+	private static List<String> makeList(String desc) {
+		List<String> descList = new LinkedList<>();
+		
+		String mid;
+		int pos;
+		while (desc.length() > 30) {
+			
+			desc = desc.trim();
+			
+			//find first space before 30
+			mid = desc.substring(0, 30);
+			pos = mid.lastIndexOf(" ");
+			if (pos == -1) {
+				descList.add(mid);
+				desc = desc.substring(30);
+				continue;
+			}
+			//else we found a space
+			descList.add(mid.substring(0, pos));
+			desc = desc.substring(pos);
 		}
 		
-		yaml.save(saveFile);
+		descList.add(desc.trim());
+		
+		return descList;
 	}
 	
 }
