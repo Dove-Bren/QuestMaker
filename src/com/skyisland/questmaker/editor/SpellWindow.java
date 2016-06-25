@@ -10,7 +10,6 @@ import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,37 +38,9 @@ import com.skyisland.questmanager.configuration.PluginConfiguration;
 import com.skyisland.questmanager.configuration.PluginConfiguration.PluginConfigurationKey;
 import com.skyisland.questmanager.configuration.utils.YamlWriter;
 
-public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Double> {
+public class SpellWindow implements EditorWindow, MapEditReceiver<Sound, Double> {
 	
-	public static final int MUSIC_DURATION_KEY = 0x443;
-	
-	private static Set<PluginConfiguration.PluginConfigurationKey> ignoreKeys = new HashSet<>();
-	
-	{
-		//ignoreKeys.add(PluginConfigurationKey.MUSICDURATIONS);
-		ignoreKeys.add(PluginConfigurationKey.VERSION);
-		ignoreKeys.add(PluginConfigurationKey.WORLDS);
-	}
-	
-	private static List<String> materialList;
-	
-	public static List<String> getMaterialList() {
-		if (materialList == null) {
-			materialList = new ArrayList<>(Material.values().length);
-			for (Material type : Material.values()) {
-				materialList.add(YamlWriter.toStandardFormat(type.name()));
-			}
-			
-			Collections.sort(materialList);
-		}
-		return materialList;
-	}
-	
-	private interface Holder {
-		public void input();
-	}
-	
-	private static class TextFieldHolder implements FocusListener, Holder {
+	private static class TextFieldHolder implements FocusListener {
 		
 		protected enum Type {
 			DOUBLE,
@@ -81,11 +52,11 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 		
 		private JTextField field;
 		
-		private ProjectWindow window;
+		private SpellWindow window;
 		
 		Type type;
 		
-		private TextFieldHolder(ProjectWindow window, PluginConfigurationKey key, JTextField field, Type type) {
+		private TextFieldHolder(SpellWindow window, PluginConfigurationKey key, JTextField field, Type type) {
 			this.key = key;
 			this.window = window;
 			this.field = field;
@@ -99,10 +70,6 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 
 		@Override
 		public void focusLost(FocusEvent e) {
-			input();
-		}
-		
-		public void input() {
 			Object value;
 			String text = field.getText().trim();
 			try {
@@ -118,22 +85,20 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 			}
 			
 			//just store string 
-			Object old = window.config.getBaseValue(key);
 			window.config.setBaseValue(key, value);
-			if (!old.equals(value))
-				window.project.dirty();
+			window.project.dirty();
 		}
 	}
 	
-	private static class MaterialFieldHolder extends AbstractAction implements Holder {
+	private static class MaterialFieldHolder extends AbstractAction {
 		
 		private PluginConfigurationKey key;
 		
 		private JComboBox<String> field;
 		
-		private ProjectWindow window;
+		private SpellWindow window;
 		
-		private MaterialFieldHolder(ProjectWindow window, PluginConfigurationKey key, JComboBox<String> field) {
+		private MaterialFieldHolder(SpellWindow window, PluginConfigurationKey key, JComboBox<String> field) {
 			this.key = key;
 			this.window = window;
 			this.field = field;
@@ -141,34 +106,22 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			input();
-		}
-		
-		public void input() {
-			String fieldName = conv((String) field.getSelectedItem());
+			String fieldName = (String) field.getSelectedItem();
 			//just store string 
-
-			Object old = window.config.getBaseValue(key);
 			window.config.setBaseValue(key, fieldName);
-
-			if (!old.equals(fieldName))
-				window.project.dirty();
-		}
-		
-		private String conv(String display) {
-			return display.toUpperCase().replace(' ', '_');
+			window.project.dirty();
 		}
 	}
 	
-	private static class BooleanFieldHolder extends AbstractAction implements Holder {
+	private static class BooleanFieldHolder extends AbstractAction {
 		
 		private PluginConfigurationKey key;
 		
 		private JRadioButton field;
 		
-		private ProjectWindow window;
+		private SpellWindow window;
 		
-		private BooleanFieldHolder(ProjectWindow window, PluginConfigurationKey key, JRadioButton field) {
+		private BooleanFieldHolder(SpellWindow window, PluginConfigurationKey key, JRadioButton field) {
 			this.key = key;
 			this.window = window;
 			this.field = field;
@@ -176,10 +129,6 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			input();
-		}
-		
-		public void input() {
 			//just store string 
 			window.config.setBaseValue(key, !field.getText().toLowerCase().contains("false"));
 			window.project.dirty();
@@ -192,12 +141,9 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 	
 	private JPanel gui;
 	
-	private List<Holder> holders;
-	
-	public ProjectWindow(Project project, AlterablePluginConfiguration config) {
+	public SpellWindow(Project project, AlterablePluginConfiguration config) {
 		this.project = project;
 		this.config = config;
-		this.holders = new LinkedList<>();
 		gui = new JPanel();
 		//wrappingGui.scroll
 		//gui.setLayout(new BoxLayout(gui, BoxLayout.PAGE_AXIS));//new SpringLayout());
@@ -211,8 +157,6 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 
 	@Override
 	public boolean close() {
-		for (Holder h : holders)
-			h.input();
 		return true;
 	}
 
@@ -319,10 +263,7 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 				comp.addItem(e);
 			
 			comp.setSelectedItem(YamlWriter.toStandardFormat(config.getBaseValue(key).toString()));
-			MaterialFieldHolder holder = new MaterialFieldHolder(this, key, comp);
-			holders.add(holder);
-			comp.addActionListener(holder);
-			//comp.listener
+			comp.addActionListener(new MaterialFieldHolder(this, key, comp));
 			
 			return comp;
 		}
@@ -344,9 +285,7 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 			button = new JRadioButton("false", !on);
 			button.setBackground(Color.DARK_GRAY);
 			button.setForeground(Color.WHITE);
-			BooleanFieldHolder holder = new BooleanFieldHolder(this, key, button);
-			button.addActionListener(holder);
-			holders.add(holder);
+			button.addActionListener(new BooleanFieldHolder(this, key, button));
 			group.add(button);
 			buttonPanel.add(button);
 			
@@ -359,7 +298,7 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 		if (key == PluginConfigurationKey.MUSICDURATIONS) {
 			
 			
-			final ProjectWindow caller = this;
+			final SpellWindow caller = this;
 			
 			JButton button = new JButton("Edit");
 			button.addActionListener(new ActionListener() {
@@ -382,16 +321,13 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 		JTextField field = new JTextField(
 				config.getBaseValue(key).toString(), 20
 				);
-		TextFieldHolder holder;
-		
 		if (key.getDef() instanceof Double) 
-			holder = new TextFieldHolder(this, key, field, TextFieldHolder.Type.DOUBLE);
+			field.addFocusListener(new TextFieldHolder(this, key, field, TextFieldHolder.Type.DOUBLE));
 		else if (key.getDef() instanceof Integer)
-			holder = new TextFieldHolder(this, key, field, TextFieldHolder.Type.INT);
+			field.addFocusListener(new TextFieldHolder(this, key, field, TextFieldHolder.Type.INT));
 		else
-			holder = new TextFieldHolder(this, key, field, TextFieldHolder.Type.OTHER);
+			field.addFocusListener(new TextFieldHolder(this, key, field, TextFieldHolder.Type.OTHER));
 		
-		field.addFocusListener(holder);
 		
 		return field;
 	}
