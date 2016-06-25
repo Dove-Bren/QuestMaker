@@ -10,7 +10,10 @@ import javax.swing.JScrollPane;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
-public class Editor {
+import com.skyisland.questmaker.swingutils.Theme;
+import com.skyisland.questmaker.swingutils.Theme.Themed;
+
+public class Editor implements Themed {
 
 	private Map<EditorWindow, JInternalFrame> openWindows;
 	
@@ -18,6 +21,7 @@ public class Editor {
 	
 	public Editor(JDesktopPane pane) {
 		this.pane = pane;
+		pane.setBackground(Theme.BACKGROUND_BASE.register(this));
 		this.openWindows = new HashMap<>();
 	}
 	
@@ -126,5 +130,11 @@ public class Editor {
 		pane.revalidate();
 		pane.repaint();
 		return true;
+	}
+
+	@Override
+	public void themeChange(Theme theme) {
+		if (theme == Theme.BACKGROUND_BASE)
+			pane.setBackground(theme.get());
 	}
 }

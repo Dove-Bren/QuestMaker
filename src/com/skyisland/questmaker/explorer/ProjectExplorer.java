@@ -1,6 +1,5 @@
 package com.skyisland.questmaker.explorer;
 
-import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
@@ -12,12 +11,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
+import com.skyisland.questmaker.swingutils.Theme;
+import com.skyisland.questmaker.swingutils.Theme.Themed;
+
 /**
  * Holds all of the items displayed in the explorer panel.
  * @author smanzana
  *
  */
-public class ProjectExplorer {
+public class ProjectExplorer implements Themed {
 	
 	public static enum Section {
 		QUEST,
@@ -57,8 +59,8 @@ public class ProjectExplorer {
 		});
 		
 		JScrollPane pane = new JScrollPane(list);
-		list.setBackground(new Color(114, 114, 150));
-		list.setForeground(new Color(255, 255, 230));
+		list.setBackground(Theme.BACKGROUND_FORWARD.register(this));
+		list.setForeground(Theme.TEXT_FORWARD.register(this));
 		this.panel.add(pane);
 		
 		this.questSection = new LinkedList<>();
@@ -165,5 +167,13 @@ public class ProjectExplorer {
 		} else {
 			spellSection.get(index - (questSection.size() + regionSection.size() - 3)).open();;
 		}
+	}
+
+	@Override
+	public void themeChange(Theme theme) {
+		if (theme == Theme.BACKGROUND_FORWARD)
+			list.setBackground(theme.get());
+		else if (theme == Theme.TEXT_FORWARD)
+			list.setForeground(theme.get());
 	}
 }

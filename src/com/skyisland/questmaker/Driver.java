@@ -1,7 +1,6 @@
 package com.skyisland.questmaker;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.MenuBar;
 import java.awt.event.WindowAdapter;
@@ -278,7 +277,6 @@ public class Driver {
 		
 		editorPane = new JDesktopPane();
 		editorPane.setPreferredSize(new Dimension(400,400));
-		editorPane.setBackground(new Color(70, 70, 100));
 		editorPane.setBorder(BorderFactory.createLoweredSoftBevelBorder());
 		splitPane.setRightComponent(editorPane);
 		this.editor = new Editor(editorPane);
