@@ -27,9 +27,6 @@ import javax.swing.border.BevelBorder;
 import com.skyisland.questmaker.Driver;
 import com.skyisland.questmaker.swingutils.StringParser;
 import com.skyisland.questmanager.QuestManagerPlugin;
-import com.skyisland.questmanager.configuration.AlterablePluginConfiguration;
-import com.skyisland.questmanager.configuration.PluginConfiguration.PluginConfigurationKey;
-import com.skyisland.questmanager.configuration.utils.YamlWriter;
 
 public class MapEditor<K, V> implements EditorWindow {
 	
@@ -103,8 +100,10 @@ public class MapEditor<K, V> implements EditorWindow {
 			if (temp != null)
 				key = temp;
 			
-			if (!old.equals(key))
+			if (!old.equals(key)) {
+				Driver.driver.getEditor().dirty(window, true);
 				dirty = true;
+			}
 			left.setText(key == null ? "" : key.toString());
 		}
 		
@@ -119,8 +118,10 @@ public class MapEditor<K, V> implements EditorWindow {
 			if (temp != null)
 				value = temp;
 			
-			if (!old.equals(value))
+			if (!old.equals(key)) {
+				Driver.driver.getEditor().dirty(window, true);
 				dirty = true;
+			}
 			right.setText(value == null ? "" : value.toString());
 		}
 		
@@ -144,6 +145,8 @@ public class MapEditor<K, V> implements EditorWindow {
 			right.setText(value == null ? "" : value.toString());
 		}
 	}
+	
+	protected MapEditor<K, V> window;
 	
 	private boolean dirty;
 
@@ -175,6 +178,7 @@ public class MapEditor<K, V> implements EditorWindow {
 	}
 	
 	public MapEditor(int key, MapEditReceiver<K, V> receiver, String title, Map<K, V> map) {
+		this.window = this;
 		this.map = new LinkedList<>();
 		this.key = key;
 		for (Entry<K, V> entry : map.entrySet()) {
@@ -411,11 +415,17 @@ public class MapEditor<K, V> implements EditorWindow {
 	}
 	
 	private void submit(boolean closeWindow) {
+		for (TableRow row : map) {
+			row.doKeyInput();
+			row.doValueInput();
+		}
 		sendback.updateMap(key, asMap());
 		
 		dirty = false;
 		if (closeWindow)
 			Driver.driver.getEditor().closeWindow(this);
+		else
+			Driver.driver.getEditor().dirty(this, false);
 	}
 	
 	private void selected(TableRow row) {

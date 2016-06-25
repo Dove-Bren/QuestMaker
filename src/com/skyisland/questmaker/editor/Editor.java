@@ -131,6 +131,17 @@ public class Editor implements Themed {
 		pane.repaint();
 		return true;
 	}
+	
+	public void dirty(EditorWindow window, boolean dirty) {
+		JInternalFrame frame = openWindows.get(window);
+		if (frame == null)
+			return;
+		
+		if (dirty)
+			frame.setTitle(window.getWindowTitle() + "*");
+		else
+			frame.setTitle(window.getWindowTitle());
+	}
 
 	@Override
 	public void themeChange(Theme theme) {

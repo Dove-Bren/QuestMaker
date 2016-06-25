@@ -37,126 +37,41 @@ import com.skyisland.questmanager.configuration.AlterablePluginConfiguration;
 import com.skyisland.questmanager.configuration.PluginConfiguration;
 import com.skyisland.questmanager.configuration.PluginConfiguration.PluginConfigurationKey;
 import com.skyisland.questmanager.configuration.utils.YamlWriter;
+import com.skyisland.questmanager.magic.spell.Spell;
 
 public class SpellWindow implements EditorWindow, MapEditReceiver<Sound, Double> {
 	
-	private static class TextFieldHolder implements FocusListener {
-		
-		protected enum Type {
-			DOUBLE,
-			INT,
-			OTHER;
-		}
-		
-		private PluginConfigurationKey key;
-		
-		private JTextField field;
-		
-		private SpellWindow window;
-		
-		Type type;
-		
-		private TextFieldHolder(SpellWindow window, PluginConfigurationKey key, JTextField field, Type type) {
-			this.key = key;
-			this.window = window;
-			this.field = field;
-			this.type = type;
-		}
-		
-		@Override
-		public void focusGained(FocusEvent e) {
-			;
-		}
-
-		@Override
-		public void focusLost(FocusEvent e) {
-			Object value;
-			String text = field.getText().trim();
-			try {
-			if (type == Type.DOUBLE)
-				value = Double.parseDouble(text);
-			else if (type == Type.INT)
-				value = Integer.parseInt(text);
-			else
-				value = text;
-			} catch (NumberFormatException ex) {
-				field.setText(window.config.getBaseValue(key).toString());
-				return;
-			}
-			
-			//just store string 
-			window.config.setBaseValue(key, value);
-			window.project.dirty();
-		}
-	}
-	
-	private static class MaterialFieldHolder extends AbstractAction {
-		
-		private PluginConfigurationKey key;
-		
-		private JComboBox<String> field;
-		
-		private SpellWindow window;
-		
-		private MaterialFieldHolder(SpellWindow window, PluginConfigurationKey key, JComboBox<String> field) {
-			this.key = key;
-			this.window = window;
-			this.field = field;
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			String fieldName = (String) field.getSelectedItem();
-			//just store string 
-			window.config.setBaseValue(key, fieldName);
-			window.project.dirty();
-		}
-	}
-	
-	private static class BooleanFieldHolder extends AbstractAction {
-		
-		private PluginConfigurationKey key;
-		
-		private JRadioButton field;
-		
-		private SpellWindow window;
-		
-		private BooleanFieldHolder(SpellWindow window, PluginConfigurationKey key, JRadioButton field) {
-			this.key = key;
-			this.window = window;
-			this.field = field;
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			//just store string 
-			window.config.setBaseValue(key, !field.getText().toLowerCase().contains("false"));
-			window.project.dirty();
-		}
-	}
-
 	private Project project;
-	
-	private AlterablePluginConfiguration config;
 	
 	private JPanel gui;
 	
-	public SpellWindow(Project project, AlterablePluginConfiguration config) {
+	private String name;
+	
+	private Spell spell;
+	
+	private boolean dirty;
+	
+	public SpellWindow(Project project, String name) {
 		this.project = project;
-		this.config = config;
+		this.name = name;
+		this.spell = null;
 		gui = new JPanel();
-		//wrappingGui.scroll
-		//gui.setLayout(new BoxLayout(gui, BoxLayout.PAGE_AXIS));//new SpringLayout());
 		setupGui();
+	}
+	
+	public SpellWindow(Project project, Spell spell) {
+		this(project, spell.getName());
+		this.spell = spell;
 	}
 
 	@Override
 	public String getWindowTitle() {
-		return "Project Settings";
+		return "Spell: " + name;
 	}
 
 	@Override
 	public boolean close() {
+		//TODO SAVE
 		return true;
 	}
 
