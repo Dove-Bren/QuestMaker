@@ -387,7 +387,14 @@ public abstract class SpellWindow implements EditorWindow, Themed {
 	}
 	
 	protected void deleteEffect(EffectPanel panel) {
+		effects.remove(panel);
+		effectPanel.remove(panel.container);
 		
+		gui.invalidate();
+		effectPanel.revalidate();
+		gui.revalidate();
+		gui.repaint();
+		dirty();
 	}
 	
 	/**
@@ -467,6 +474,7 @@ public abstract class SpellWindow implements EditorWindow, Themed {
 		}
 		
 		addEffect(SpellEffectWindowFactory.getWindow((EffectType) typeField.getSelectedItem()));
+		dirty();
 	}
 	
 }
