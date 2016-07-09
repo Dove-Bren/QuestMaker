@@ -32,6 +32,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import com.skyisland.questmaker.project.Project;
+import com.skyisland.questmaker.spell.BlockChangeEffectWindow;
 import com.skyisland.questmaker.swingutils.DoubleParser;
 import com.skyisland.questmaker.swingutils.SoundParser;
 import com.skyisland.questmanager.configuration.AlterablePluginConfiguration;
@@ -314,10 +315,26 @@ public class ProjectWindow implements EditorWindow, MapEditReceiver<Sound, Doubl
 	}
 	
 	private Component createField(PluginConfiguration.PluginConfigurationKey key) {
-		if (key == PluginConfigurationKey.ALTERTYPE || key == PluginConfigurationKey.COMPASSTYPE
-				|| key == PluginConfigurationKey.INVOKERTYPE) {
+		if (key == PluginConfigurationKey.COMPASSTYPE || key == PluginConfigurationKey.INVOKERTYPE
+				|| key == PluginConfigurationKey.RECALLERTYPE) {
 			JComboBox<String> comp = new JComboBox<>(new DefaultComboBoxModel<String>());
 			List<String> list = getMaterialList();
+			
+			for (String e : list)
+				comp.addItem(e);
+			
+			comp.setSelectedItem(YamlWriter.toStandardFormat(config.getBaseValue(key).toString()));
+			MaterialFieldHolder holder = new MaterialFieldHolder(this, key, comp);
+			holders.add(holder);
+			comp.addActionListener(holder);
+			//comp.listener
+			
+			return comp;
+		}
+		
+		if (key == PluginConfigurationKey.ALTERTYPE || key == PluginConfigurationKey.MARKLOCTYPE) {
+			JComboBox<String> comp = new JComboBox<>(new DefaultComboBoxModel<String>());
+			List<String> list = BlockChangeEffectWindow.getPlaceableMaterials();
 			
 			for (String e : list)
 				comp.addItem(e);
