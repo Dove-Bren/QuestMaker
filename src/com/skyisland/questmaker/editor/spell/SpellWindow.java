@@ -21,8 +21,8 @@ import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.Spring;
 import javax.swing.SpringLayout;
 
 import com.skyisland.questmaker.Driver;
@@ -282,7 +282,9 @@ public abstract class SpellWindow implements EditorWindow, Themed {
 		paramPanel.setPreferredSize(new Dimension(300, 200));
 		paramPanel.validate();
 		
+
 		JPanel listPanel = new JPanel();
+		JScrollPane pane = new JScrollPane(listPanel);
 		listPanel.setPreferredSize(new Dimension(300, 100));
 		listPanel.setBackground(Theme.BACKGROUND_FORWARD.register(this));
 		listPanel.setForeground(Theme.TEXT_FORWARD.register(this));
@@ -299,25 +301,29 @@ public abstract class SpellWindow implements EditorWindow, Themed {
 		listPanel.add(button);
 		lay.putConstraint(SpringLayout.NORTH, button, 20, SpringLayout.NORTH, listPanel);
 		lay.putConstraint(SpringLayout.WEST, button, 20, SpringLayout.WEST, listPanel);
-		
+		listPanel.setPreferredSize(new Dimension(300, 500));
+		effectPanel.validate();
 		listPanel.add(effectPanel);
 		lay.putConstraint(SpringLayout.NORTH, effectPanel, 20, SpringLayout.SOUTH, button);
 		lay.putConstraint(SpringLayout.WEST, effectPanel, 0, SpringLayout.WEST, listPanel);
 		lay.putConstraint(SpringLayout.EAST, effectPanel, 0, SpringLayout.EAST, listPanel);
-		lay.putConstraint(SpringLayout.SOUTH, listPanel, 0, SpringLayout.SOUTH, effectPanel);
+		//lay.putConstraint(SpringLayout.SOUTH, listPanel, 0, SpringLayout.SOUTH, effectPanel);
 		//lay.putConstraint(SpringLayout.NORTH, listPanel, Spring.constant(5, 5, 10000), SpringLayout.SOUTH, listPanel);
 		
+		listPanel.validate();
+		pane.validate();
 		lay = new SpringLayout();
 		gui.setLayout(lay);
-		gui.add(paramPanel, BorderLayout.NORTH);
-		gui.add(listPanel, BorderLayout.CENTER);
+		gui.add(paramPanel);
+		//gui.add(listPanel, BorderLayout.CENTER);
+		gui.add(pane);
 		lay.putConstraint(SpringLayout.WEST, paramPanel, 0, SpringLayout.WEST, gui);
 		lay.putConstraint(SpringLayout.EAST, gui, 0, SpringLayout.EAST, paramPanel);
 		lay.putConstraint(SpringLayout.NORTH, paramPanel, 0, SpringLayout.NORTH, gui);
-		lay.putConstraint(SpringLayout.WEST, listPanel, 0, SpringLayout.WEST, gui);
-		lay.putConstraint(SpringLayout.EAST, listPanel, 0, SpringLayout.EAST, paramPanel);
-		lay.putConstraint(SpringLayout.NORTH, listPanel, 0, SpringLayout.SOUTH, paramPanel);
-		lay.putConstraint(SpringLayout.SOUTH, gui, 0, SpringLayout.SOUTH, listPanel);
+		lay.putConstraint(SpringLayout.WEST, pane, 0, SpringLayout.WEST, gui);
+		lay.putConstraint(SpringLayout.EAST, pane, 0, SpringLayout.EAST, paramPanel);
+		lay.putConstraint(SpringLayout.NORTH, pane, 0, SpringLayout.SOUTH, paramPanel);
+		lay.putConstraint(SpringLayout.SOUTH, gui, 0, SpringLayout.SOUTH, pane);
 		
 		gui.validate();
 	}

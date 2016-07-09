@@ -5,9 +5,11 @@ import com.skyisland.questmanager.magic.spell.effect.DamageMPEffect;
 import com.skyisland.questmanager.magic.spell.effect.DamageUndeadEffect;
 import com.skyisland.questmanager.magic.spell.effect.FireEffect;
 import com.skyisland.questmanager.magic.spell.effect.HealEffect;
+import com.skyisland.questmanager.magic.spell.effect.InvokeSpellWeavingEffect;
 import com.skyisland.questmanager.magic.spell.effect.MarkEffect;
 import com.skyisland.questmanager.magic.spell.effect.RecallEffect;
 import com.skyisland.questmanager.magic.spell.effect.SpellEffect;
+import com.skyisland.questmanager.magic.spell.effect.SwapEffect;
 
 public final class SpellEffectWindowFactory {
 
@@ -18,7 +20,12 @@ public final class SpellEffectWindowFactory {
 		FIRE("Fire"),
 		HEAL("Heal"),
 		MARK("Mark"),
-		RECALL("Recall");
+		RECALL("Recall"),
+		TRANSMUTE("Block Transmute"),
+		PYLON("Cast Pylon"),
+		WEAVINGINVOKE("Invoke Weaved Spell"),
+		SWAP("Swap/Transplace"),
+		STATUS("Status Effect");
 		
 		private String title;
 		
@@ -87,6 +94,26 @@ public final class SpellEffectWindowFactory {
 					return new RecallEffect();
 				}
 			};
+		case TRANSMUTE:
+			return new BlockChangeEffectWindow(null, null);
+		case PYLON:
+			return new CastPylonEffectWindow(null, null);
+		case WEAVINGINVOKE:
+			return new EmptyWindow(EffectType.WEAVINGINVOKE.getTitle()) {
+				@Override
+				public SpellEffect getEffect() {
+					return new InvokeSpellWeavingEffect();
+				}
+			};
+		case SWAP:
+			return new EmptyWindow(EffectType.SWAP.getTitle()) {
+				@Override
+				public SpellEffect getEffect() {
+					return new SwapEffect();
+				}
+			};
+		case STATUS:
+			return new StatusEffectWindow(null, 0, 0);
 		}
 		
 		return null;
