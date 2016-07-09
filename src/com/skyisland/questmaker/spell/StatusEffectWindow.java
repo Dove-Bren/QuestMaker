@@ -1,6 +1,8 @@
 package com.skyisland.questmaker.spell;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +43,8 @@ public class StatusEffectWindow implements SpellEffectWindow, Themed {
 	
 	private JPanel gui;
 	
+	private boolean dirty;
+	
 	private JComboBox<PotionEffectType> effectBox;
 	
 	private JFormattedTextField durationField;
@@ -54,6 +58,7 @@ public class StatusEffectWindow implements SpellEffectWindow, Themed {
 	 * @param to
 	 */
 	public StatusEffectWindow(PotionEffectType type, int defaultDuration, int defaultAmplification) {
+		dirty = false;
 		gui = new JPanel();
 		gui.setBackground(Theme.BACKGROUND_EDITWINDOW.get());
 		SpringLayout lay = new SpringLayout();
@@ -76,6 +81,14 @@ public class StatusEffectWindow implements SpellEffectWindow, Themed {
 		}
 		
 		effectBox.setEditable(false);
+		effectBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dirty();
+			}
+			
+		});
 		gui.add(effectBox);
 		lay.putConstraint(SpringLayout.WEST, effectBox, 0, SpringLayout.WEST, label);
 		lay.putConstraint(SpringLayout.NORTH, effectBox, 3, SpringLayout.SOUTH, label);
@@ -86,7 +99,15 @@ public class StatusEffectWindow implements SpellEffectWindow, Themed {
 		gui.add(label);
 		lay.putConstraint(SpringLayout.NORTH, label, 40, SpringLayout.SOUTH, effectBox);
 		lay.putConstraint(SpringLayout.WEST, label, 10, SpringLayout.WEST, gui);
-		durationField = new JFormattedTextField(durationField);
+		durationField = new JFormattedTextField(defaultDuration);
+		durationField.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dirty();
+			}
+			
+		});
 		
 		durationField.setColumns(4);
 		durationField.setEditable(false);
@@ -98,6 +119,14 @@ public class StatusEffectWindow implements SpellEffectWindow, Themed {
 		
 		amplifierField.setColumns(4);
 		amplifierField.setEditable(false);
+		amplifierField.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dirty();
+			}
+			
+		});
 		gui.add(amplifierField);
 		lay.putConstraint(SpringLayout.WEST, amplifierField, 75, SpringLayout.EAST, durationField);
 		lay.putConstraint(SpringLayout.NORTH, amplifierField, 0, SpringLayout.NORTH, durationField);
@@ -127,5 +156,14 @@ public class StatusEffectWindow implements SpellEffectWindow, Themed {
 		return new StatusEffect(
 				new PotionEffect((PotionEffectType) effectBox.getSelectedItem(), (Integer) durationField.getValue(), (Integer) amplifierField.getValue())
 				);
+	}
+	
+	protected void dirty() {
+		dirty = true;
+	}
+	
+	@Override
+	public boolean isDirty() {
+		return dirty;
 	}
 }

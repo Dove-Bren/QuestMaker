@@ -19,4 +19,6 @@ public interface SpellEffectWindow {
 	
 	SpellEffect getEffect();
 	
+	boolean isDirty();
+	
 }

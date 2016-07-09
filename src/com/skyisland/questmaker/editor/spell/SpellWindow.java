@@ -201,7 +201,8 @@ public abstract class SpellWindow implements EditorWindow, Themed {
 		
 		if (!spell.getSpellEffects().isEmpty())
 		for (SpellEffect ef : spell.getSpellEffects()) {
-			addEffect(SpellEffectWindowFactory.getWindow(SpellEffectWindowFactory.resolveType(ef)));
+			//addEffect(SpellEffectWindowFactory.getWindow(SpellEffectWindowFactory.resolveType(ef)));
+			addEffect(SpellEffectWindowFactory.getWindow(ef));
 		}
 		
 		setupGui();
@@ -214,6 +215,12 @@ public abstract class SpellWindow implements EditorWindow, Themed {
 
 	@Override
 	public boolean close() {
+		if (!dirty) //check effects 
+		for (EffectPanel efPanel : effects)
+		if (efPanel.effect.isDirty()) {
+			dirty = true;
+			break;
+		}
 		if (dirty) {
 			int ret = JOptionPane.showConfirmDialog(gui, "Would you like to save your changes to the spell?", "Unsaved Changes", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 			

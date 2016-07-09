@@ -1,6 +1,8 @@
 package com.skyisland.questmaker.spell;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +38,8 @@ public class BlockChangeEffectWindow implements SpellEffectWindow, Themed {
 	}
 	
 	private JPanel gui;
+	
+	private boolean dirty;
 	
 	private JComboBox<String> fromBox;
 	
@@ -75,6 +79,14 @@ public class BlockChangeEffectWindow implements SpellEffectWindow, Themed {
 		}
 		
 		fromBox.setEditable(false);
+		fromBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dirty();
+			}
+			
+		});
 		gui.add(fromBox);
 		lay.putConstraint(SpringLayout.WEST, fromBox, 0, SpringLayout.WEST, label);
 		lay.putConstraint(SpringLayout.NORTH, fromBox, 3, SpringLayout.SOUTH, label);
@@ -91,6 +103,14 @@ public class BlockChangeEffectWindow implements SpellEffectWindow, Themed {
 		}
 		
 		toBox.setEditable(false);
+		toBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dirty();
+			}
+			
+		});
 		gui.add(toBox);
 		lay.putConstraint(SpringLayout.WEST, toBox, 75, SpringLayout.EAST, fromBox);
 		lay.putConstraint(SpringLayout.NORTH, toBox, 0, SpringLayout.NORTH, fromBox);
@@ -121,5 +141,14 @@ public class BlockChangeEffectWindow implements SpellEffectWindow, Themed {
 				Material.matchMaterial(fromBox.getSelectedItem().toString()),
 				Material.matchMaterial(toBox.getSelectedItem().toString())
 				);
+	}
+	
+	protected void dirty() {
+		dirty = true;
+	}
+	
+	@Override
+	public boolean isDirty() {
+		return dirty;
 	}
 }

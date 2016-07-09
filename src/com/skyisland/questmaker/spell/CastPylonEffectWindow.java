@@ -1,6 +1,8 @@
 package com.skyisland.questmaker.spell;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -22,6 +24,8 @@ public class CastPylonEffectWindow implements SpellEffectWindow, Themed {
 	
 	private JPanel gui;
 	
+	private boolean dirty;
+	
 	private JTextField nameBox;
 	
 	private JComboBox<String> iconBox;
@@ -33,6 +37,7 @@ public class CastPylonEffectWindow implements SpellEffectWindow, Themed {
 	 * @param to
 	 */
 	public CastPylonEffectWindow(String name, Material icon) {
+		dirty = true;
 		gui = new JPanel();
 		gui.setBackground(Theme.BACKGROUND_EDITWINDOW.get());
 		SpringLayout lay = new SpringLayout();
@@ -49,6 +54,14 @@ public class CastPylonEffectWindow implements SpellEffectWindow, Themed {
 		lay.putConstraint(SpringLayout.NORTH, label, 40, SpringLayout.NORTH, gui);
 		lay.putConstraint(SpringLayout.WEST, label, 10, SpringLayout.WEST, gui);
 		nameBox = new JTextField();
+		nameBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dirty();
+			}
+			
+		});
 		if (name != null)
 			nameBox.setText(name);
 		
@@ -58,6 +71,14 @@ public class CastPylonEffectWindow implements SpellEffectWindow, Themed {
 		lay.putConstraint(SpringLayout.NORTH, nameBox, 3, SpringLayout.SOUTH, label);
 		
 		iconBox = new JComboBox<String>(ProjectWindow.getMaterialList().toArray(new String[0]));
+		iconBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dirty();
+			}
+			
+		});
 		if (icon != null) {
 			//preset material
 			for (int i = 0; i < iconBox.getItemCount(); i++) {
@@ -99,5 +120,14 @@ public class CastPylonEffectWindow implements SpellEffectWindow, Themed {
 				nameBox.getText(),
 				new ItemStack(Material.matchMaterial(iconBox.getSelectedItem().toString()))
 				);
+	}
+	
+	protected void dirty() {
+		dirty = true;
+	}
+	
+	@Override
+	public boolean isDirty() {
+		return dirty;
 	}
 }

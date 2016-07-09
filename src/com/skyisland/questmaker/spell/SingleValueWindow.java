@@ -2,6 +2,8 @@ package com.skyisland.questmaker.spell;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -17,7 +19,10 @@ public abstract class SingleValueWindow<T> implements SpellEffectWindow, Themed 
 	
 	private JFormattedTextField damageField;
 	
+	private boolean dirty;
+	
 	public SingleValueWindow(String guiText, String labelText, T defaultValue) {
+		dirty = false;
 		this.gui = new JPanel();
 		gui.setPreferredSize(new Dimension(400, 200));
 		setupGui(guiText, labelText, defaultValue);
@@ -44,6 +49,14 @@ public abstract class SingleValueWindow<T> implements SpellEffectWindow, Themed 
 		damageField = new JFormattedTextField(defaultValue);
 		damageField.setColumns(5);
 		damageField.setEditable(true);
+		damageField.addPropertyChangeListener("value", new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				dirty();
+			}
+			
+		});
 		gui.add(damageField);
 		lay.putConstraint(SpringLayout.WEST, damageField, 0, SpringLayout.WEST, label);
 		lay.putConstraint(SpringLayout.NORTH, damageField, 3, SpringLayout.SOUTH, label);
@@ -65,6 +78,15 @@ public abstract class SingleValueWindow<T> implements SpellEffectWindow, Themed 
 	@Override
 	public void themeChange(Theme theme) {
 		
+	}
+	
+	protected void dirty() {
+		dirty = true;
+	}
+	
+	@Override
+	public boolean isDirty() {
+		return dirty;
 	}
 
 }

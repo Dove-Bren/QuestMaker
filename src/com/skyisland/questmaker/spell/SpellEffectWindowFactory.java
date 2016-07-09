@@ -122,6 +122,86 @@ public final class SpellEffectWindowFactory {
 		return null;
 	}
 	
+	public static SpellEffectWindow getWindow(SpellEffect ef) {
+		EffectType type = resolveType(ef);
+		switch (type) {
+		case DAMAGE:
+			return new SingleValueWindow<Double>(EffectType.DAMAGE.getTitle(), "Damage", ((DamageEffect) ef).getDamage()) {
+				@Override
+				public SpellEffect getEffect() {
+					return new DamageEffect(getValue());
+				}
+			};
+		case DAMAGEMP:
+			return new SingleValueWindow<Double>(EffectType.DAMAGEMP.getTitle(), "Damage", ((DamageMPEffect) ef).getDamage()) {
+				@Override
+				public SpellEffect getEffect() {
+					return new DamageMPEffect(getValue());
+				}
+			};
+		case DAMAGEUNDEAD:
+			return new SingleValueWindow<Double>(EffectType.DAMAGEUNDEAD.getTitle(), "Damage", ((DamageUndeadEffect) ef).getDamage()) {
+				@Override
+				public SpellEffect getEffect() {
+					return new DamageUndeadEffect(getValue());
+				}
+			};
+		case HEAL:
+			return new SingleValueWindow<Double>(EffectType.HEAL.getTitle(), "Amount", ((HealEffect) ef).getAmount()) {
+				@Override
+				public SpellEffect getEffect() {
+					return new HealEffect(getValue());
+				}
+			};
+		case FIRE:
+			return new SingleValueWindow<Integer>(EffectType.FIRE.getTitle(), "Duration (Ticks)", ((FireEffect) ef).getDuration()) {
+				@Override
+				public SpellEffect getEffect() {
+					return new FireEffect(getValue());
+				}
+			};
+		case MARK:
+			return new EmptyWindow(EffectType.MARK.getTitle()) {
+				@Override
+				public SpellEffect getEffect() {
+					return new MarkEffect();
+				}
+			};
+		case RECALL:
+			return new EmptyWindow(EffectType.RECALL.getTitle()) {
+				@Override
+				public SpellEffect getEffect() {
+					return new RecallEffect();
+				}
+			};
+		case TRANSMUTE:
+			BlockEffect effect = (BlockEffect) ef;
+			return new BlockChangeEffectWindow(effect.getTypeFrom(), effect.getTypeTo());
+		case PYLON:
+			CastPylonEffect peff = (CastPylonEffect) ef;
+			return new CastPylonEffectWindow(peff.getType(), peff.getIcon().getType());
+		case WEAVINGINVOKE:
+			return new EmptyWindow(EffectType.WEAVINGINVOKE.getTitle()) {
+				@Override
+				public SpellEffect getEffect() {
+					return new InvokeSpellWeavingEffect();
+				}
+			};
+		case SWAP:
+			return new EmptyWindow(EffectType.SWAP.getTitle()) {
+				@Override
+				public SpellEffect getEffect() {
+					return new SwapEffect();
+				}
+			};
+		case STATUS:
+			StatusEffect seff = (StatusEffect) ef;
+			return new StatusEffectWindow(seff.getEffect().getType(), seff.getEffect().getDuration(), seff.getEffect().getAmplifier());
+		}
+		
+		return null;
+	}
+	
 	/**
 	 * Attempts to deduce the EffectType for the given effect from hard coded values.
 	 * If no match is found, returns null

@@ -46,5 +46,10 @@ public abstract class EmptyWindow implements SpellEffectWindow, Themed {
 	public void themeChange(Theme theme) {
 		
 	}
+	
+	@Override
+	public boolean isDirty() {
+		return false;
+	}
 
 }
