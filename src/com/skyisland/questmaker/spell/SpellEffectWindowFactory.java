@@ -1,5 +1,7 @@
 package com.skyisland.questmaker.spell;
 
+import com.skyisland.questmanager.magic.spell.effect.BlockEffect;
+import com.skyisland.questmanager.magic.spell.effect.CastPylonEffect;
 import com.skyisland.questmanager.magic.spell.effect.DamageEffect;
 import com.skyisland.questmanager.magic.spell.effect.DamageMPEffect;
 import com.skyisland.questmanager.magic.spell.effect.DamageUndeadEffect;
@@ -9,6 +11,7 @@ import com.skyisland.questmanager.magic.spell.effect.InvokeSpellWeavingEffect;
 import com.skyisland.questmanager.magic.spell.effect.MarkEffect;
 import com.skyisland.questmanager.magic.spell.effect.RecallEffect;
 import com.skyisland.questmanager.magic.spell.effect.SpellEffect;
+import com.skyisland.questmanager.magic.spell.effect.StatusEffect;
 import com.skyisland.questmanager.magic.spell.effect.SwapEffect;
 
 public final class SpellEffectWindowFactory {
@@ -128,6 +131,28 @@ public final class SpellEffectWindowFactory {
 	public static EffectType resolveType(SpellEffect effect) {
 		if (effect instanceof DamageEffect)
 			return EffectType.DAMAGE;
+		if (effect instanceof DamageMPEffect)
+			return EffectType.DAMAGEMP;
+		if (effect instanceof DamageUndeadEffect)
+			return EffectType.DAMAGEUNDEAD;
+		if (effect instanceof FireEffect)
+			return EffectType.FIRE;
+		if (effect instanceof HealEffect)
+			return EffectType.HEAL;
+		if (effect instanceof MarkEffect)
+			return EffectType.MARK;
+		if (effect instanceof RecallEffect)
+			return EffectType.RECALL;
+		if (effect instanceof BlockEffect)
+			return EffectType.TRANSMUTE;
+		if (effect instanceof CastPylonEffect)
+			return EffectType.PYLON;
+		if (effect instanceof InvokeSpellWeavingEffect)
+			return EffectType.WEAVINGINVOKE;
+		if (effect instanceof SwapEffect)
+			return EffectType.SWAP;
+		if (effect instanceof StatusEffect)
+			return EffectType.STATUS;
 		
 		
 		return null;

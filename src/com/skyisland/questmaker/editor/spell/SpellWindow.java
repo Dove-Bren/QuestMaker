@@ -20,6 +20,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -172,7 +173,7 @@ public abstract class SpellWindow implements EditorWindow, Themed {
 	
 	private boolean dirty;
 	
-	private Map<Param, Component> fields;
+	private Map<Param, JTextField> fields;
 	
 	private SpellWindow() {
 		dirty = false;
@@ -213,7 +214,18 @@ public abstract class SpellWindow implements EditorWindow, Themed {
 
 	@Override
 	public boolean close() {
-		//TODO SAVE
+		if (dirty) {
+			int ret = JOptionPane.showConfirmDialog(gui, "Would you like to save your changes to the spell?", "Unsaved Changes", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+			
+			if (ret == JOptionPane.CANCEL_OPTION)
+				return false;
+			
+			if (ret == JOptionPane.YES_OPTION) {
+				template.setName(fields.get(Param.NAME).getText());
+				template.setSpell(this.buildSpell());
+			}
+		}
+		
 		return true;
 	}
 

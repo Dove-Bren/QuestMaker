@@ -73,11 +73,11 @@ public class ProjectExplorer implements Themed {
 		switch (section) {
 		case QUEST:
 			questSection.add(item);
-			data.add(questSection.size() -1, item.getTitle());
+			data.add(questSection.size(), item.getTitle());
 			break;
 		case REGION:
 			regionSection.add(item);
-			data.add(questSection.size() + regionSection.size() -1, item.getTitle());
+			data.add(questSection.size() + regionSection.size(), item.getTitle());
 			break;
 		case SPELL:
 			spellSection.add(item);
@@ -165,7 +165,7 @@ public class ProjectExplorer implements Themed {
 		} else if (index <= questSection.size() + regionSection.size()) {
 			regionSection.get((index - questSection.size()) -2).open();;
 		} else {
-			spellSection.get(index - (questSection.size() + regionSection.size() - 3)).open();;
+			spellSection.get(index - (questSection.size() + regionSection.size()) - 3).open();;
 		}
 	}
 

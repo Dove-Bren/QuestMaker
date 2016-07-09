@@ -140,7 +140,7 @@ public class CreateSpellAction extends AbstractAction {
 			return;
 		}
 		
-		SpellTemplate template = new SpellTemplate(name);
+		SpellTemplate template = new SpellTemplate(name, type);
 		SpellWindow window = type.buildWindow(template);
 		proj.addSpell(template);
 		Driver.driver.getEditor().openWindow(window, new Dimension(625, 400));

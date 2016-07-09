@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.skyisland.questmaker.Driver;
 import com.skyisland.questmaker.editor.spell.SpellWindow;
+import com.skyisland.questmaker.editor.spell.SpellWindow.SpellType;
 import com.skyisland.questmaker.explorer.ExplorerItem;
 import com.skyisland.questmaker.project.ProjectResource;
 import com.skyisland.questmanager.magic.spell.Spell;
@@ -16,8 +17,11 @@ public class SpellTemplate implements ProjectResource, ExplorerItem {
 	
 	private Spell spell;
 	
-	public SpellTemplate(String name) {
+	private SpellType type;
+	
+	public SpellTemplate(String name, SpellType type) {
 		this.name = name;
+		this.type = type;
 	}
 
 	@Override
@@ -43,7 +47,11 @@ public class SpellTemplate implements ProjectResource, ExplorerItem {
 
 	@Override
 	public void open() {
-		SpellWindow window = SpellWindow.getWindow(this, spell);
+		SpellWindow window;
+		if (spell == null)
+			window = type.buildWindow(this);
+		else
+			window = SpellWindow.getWindow(this, spell);
 		Driver.driver.getEditor().openWindow(window);
 	}
 	
